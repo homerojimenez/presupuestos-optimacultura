@@ -739,10 +739,62 @@
     .modal-msg.ok { color: #1c7d3a; }
     @media (max-width: 620px) { .users-new { grid-template-columns: 1fr; } }
 
+    /* ---------- Tipo de documento + Proyección económica ---------- */
+    .doc-type-switch { display: flex; gap: 6px; background: #ececec; border-radius: 12px; padding: 4px; margin: 14px 0 6px; }
+    .doc-type-btn { flex: 1; border: 0; background: transparent; padding: 9px 10px; border-radius: 9px; font: inherit; font-size: 0.85rem; font-weight: 600; color: var(--muted); cursor: pointer; }
+    .doc-type-btn.is-active { background: #fff; color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+    .doc-hint { font-size: 0.82rem; color: var(--muted); line-height: 1.45; margin: 0 0 12px; }
+
+    .app[data-doctype="proyeccion"] [data-doc="presupuesto"] { display: none; }
+    .app[data-doctype="presupuesto"] [data-doc="proyeccion"] { display: none; }
+
+    /* Páginas de proyección (índice y parte final) */
+    .proj-page { background: #f5f5f5; padding: 7% 7% 5%; display: flex; flex-direction: column; }
+    .proj-topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 3.5%; }
+    .proj-eyebrow { font-size: 0.62rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+    .proj-topbar img { width: 22%; height: auto; }
+    .proj-title { font-size: clamp(1.6rem, 3.4vw, 2.9rem); font-weight: 800; letter-spacing: -0.02em; color: #111; margin: 0 0 2.5%; outline: none; }
+    .proj-title:empty::before { content: attr(data-placeholder); color: #b8b8b8; }
+    .proj-body { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; gap: 3%; }
+    .proj-body.image-first { flex-direction: column; }
+    .proj-text {
+      outline: none; font-size: clamp(0.72rem, 1.35vw, 1.05rem); line-height: 1.5; color: #2a2a2a;
+      flex: 0 0 auto;
+    }
+    .proj-text:empty::before { content: attr(data-placeholder); color: #b8b8b8; }
+    .proj-text ul { margin: 0.4em 0; padding-left: 1.3em; }
+    .proj-text li { margin: 0.2em 0; }
+    .proj-text p { margin: 0.4em 0; }
+    .proj-text b, .proj-text strong { font-weight: 700; }
+    .proj-text img { max-width: 100%; height: auto; display: block; margin: 0.6em auto; border-radius: 8px; }
+    .proj-image {
+      flex: 1 1 auto; min-height: 22%; border-radius: 18px; overflow: hidden; cursor: pointer;
+      background: #e4e4e4 url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="%23999" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.6"/><path d="M21 15l-5-5L5 21"/></svg>') center/40px no-repeat;
+      display: flex; align-items: center; justify-content: center; position: relative;
+    }
+    .proj-image.has-image { cursor: pointer; background: #e4e4e4; }
+    .proj-image img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .proj-image .proj-image-hint { position: absolute; bottom: 8px; font-size: 0.72rem; color: #888; background: rgba(255,255,255,.85); padding: 3px 9px; border-radius: 999px; pointer-events: none; }
+    .proj-image.has-image .proj-image-hint { opacity: 0; transition: opacity .15s; }
+    .proj-image.has-image:hover .proj-image-hint { opacity: 1; }
+    .proj-section-tools { position: absolute; top: 8px; right: 8px; display: flex; gap: 6px; z-index: 4; }
+    .proj-section-tools button { border: 1px solid var(--line); background: rgba(255,255,255,.92); border-radius: 8px; width: 30px; height: 30px; cursor: pointer; font-size: 0.9rem; }
+
+    /* Barra flotante de formato rich-text */
+    .rt-toolbar {
+      position: fixed; z-index: 8000; display: none; gap: 4px; padding: 5px;
+      background: #1c1c1c; border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,.28);
+    }
+    .rt-toolbar.is-visible { display: flex; }
+    .rt-toolbar button { border: 0; background: transparent; color: #fff; width: 32px; height: 32px; border-radius: 7px; cursor: pointer; font-size: 0.9rem; }
+    .rt-toolbar button:hover { background: rgba(255,255,255,.16); }
+
     @media print {
       @page { size: A4 portrait; margin: 0; }
       html, body { background: #fff !important; }
-      #loginOverlay, .modal-overlay { display: none !important; }
+      #loginOverlay, .modal-overlay, .rt-toolbar { display: none !important; }
+      .proj-image { cursor: default; }
+      .proj-image .proj-image-hint, .proj-section-tools { display: none !important; }
       .app { display: block; }
       .sidebar, .preview-header, .page-label { display: none !important; }
       .preview-area { padding: 0 !important; background: #fff !important; }
@@ -784,6 +836,11 @@
         <span class="spacer"></span>
         <button id="manageUsersBtn" type="button" hidden>Usuarios</button>
         <button id="logoutBtn" type="button">Salir</button>
+      </div>
+
+      <div class="doc-type-switch" role="tablist">
+        <button type="button" class="doc-type-btn is-active" data-doctype="presupuesto">Presupuesto general</button>
+        <button type="button" class="doc-type-btn" data-doctype="proyeccion">Proyección económica</button>
       </div>
 
       <section class="section">
@@ -861,12 +918,18 @@
         </div>
       </section>
 
-      <section class="section">
+      <section class="section" data-doc="presupuesto">
         <h2>3. Descripción de la propuesta</h2>
         <div id="serviceEditors"></div>
       </section>
 
-      <section class="section">
+      <section class="section" data-doc="proyeccion" hidden>
+        <h2>3. Proyección económica</h2>
+        <p class="doc-hint">Edita el índice y las secciones directamente sobre las páginas de la derecha: escribe, aplica negritas/viñetas e inserta tablas. Pulsa el contenedor de imagen para adjuntar una foto.</p>
+        <button id="addFinalSectionBtn" type="button" class="secondary">+ Añadir sección a la parte final</button>
+      </section>
+
+      <section class="section" data-doc="presupuesto">
         <h2>4. Condiciones económicas</h2>
         <div class="pricing-grid">
           <div class="offer-config-block">
@@ -1014,6 +1077,15 @@
     </div>
   </div>
 
+  <!-- Barra flotante de formato para el texto enriquecido de la proyección -->
+  <div id="rtToolbar" class="rt-toolbar" role="toolbar">
+    <button type="button" data-rt="bold" title="Negrita"><b>B</b></button>
+    <button type="button" data-rt="bullet" title="Viñetas">•≡</button>
+    <button type="button" data-rt="image" title="Insertar tabla/imagen">🖼</button>
+  </div>
+  <input id="projTextImageInput" type="file" accept="image/*" style="display:none" />
+  <input id="projPhotoInput" type="file" accept="image/*" style="display:none" />
+
   <script>
 
     const SERVICES = {
@@ -1054,8 +1126,17 @@
       logoBgRemovedData: '',
       logoBgRemovalEnabled: false,
       logoAspect: 3,
-      logoNativeAspect: 3
+      logoNativeAspect: 3,
+      // Tipo de documento: 'presupuesto' (general) | 'proyeccion' (económica)
+      docType: 'presupuesto',
+      // Contenido de la proyección económica
+      proyeccion: {
+        indice: { text: '', image: '' },
+        finalSections: []   // { id, title, text, image }
+      }
     };
+
+    let proyeccionSeq = 0; // contador para ids de sección
 
     const els = {
       heroInput: document.getElementById('heroInput'),
@@ -1084,7 +1165,9 @@
       printBtn: document.getElementById('printBtn'),
       exportKitBtn: document.getElementById('exportKitBtn'),
       exampleBtn: document.getElementById('exampleBtn'),
-      resetBtn: document.getElementById('resetBtn')
+      resetBtn: document.getElementById('resetBtn'),
+      projPhotoInput: document.getElementById('projPhotoInput'),
+      projTextImageInput: document.getElementById('projTextImageInput')
     };
 
     function escapeHTML(value) {
@@ -1262,9 +1345,10 @@
       return getBudgetItemsFromSet(state.services).map((item) => item.label);
     }
 
-    function buildSequence() {
+    // Empuja la intro corporativa + las páginas de servicios según el selector.
+    // Se comparte entre presupuesto general y proyección económica.
+    function pushServicePages(sequence) {
       const has = (key) => state.services.has(key);
-      const sequence = [{ type: 'cover', label: 'Portada dinámica' }];
 
       // Introducción corporativa (siempre)
       sequence.push({ type: 'static', page: '2', label: 'Introducción a ÓptimaCultura' });
@@ -1300,13 +1384,31 @@
       if (has('videomapping')) sequence.push({ type: 'static', page: '20', label: 'Videomapping' });
       if (has('diseno_grafico_web')) sequence.push({ type: 'static', page: '21', label: 'Diseño gráfico y web' });
       if (has('diseno_editorial')) sequence.push({ type: 'static', page: '22', label: 'Diseño editorial' });
+      return sequence;
+    }
 
-      // Cierre
+    function buildSequence() {
+      if (state.docType === 'proyeccion') return buildProyeccionSequence();
+
+      const sequence = [{ type: 'cover', label: 'Portada dinámica' }];
+      pushServicePages(sequence);
       sequence.push({ type: 'static', page: '23', label: 'Servicio técnico y soporte' });
       sequence.push({ type: 'budgetA', label: state.optionBEnabled ? 'Oferta económica · opción A' : 'Oferta económica' });
       if (state.optionBEnabled) {
         sequence.push({ type: 'budgetB', label: 'Oferta económica · opción B' });
       }
+      sequence.push({ type: 'static', page: '24', label: 'Cierre corporativo' });
+      return sequence;
+    }
+
+    // Proyección económica: portada + índice + servicios + parte final + cierre.
+    function buildProyeccionSequence() {
+      const sequence = [{ type: 'cover', label: 'Portada dinámica' }];
+      sequence.push({ type: 'projIndice', label: 'Índice' });
+      pushServicePages(sequence);
+      state.proyeccion.finalSections.forEach((sec, i) => {
+        sequence.push({ type: 'projFinal', sectionId: sec.id, label: `Parte final · ${i + 1}` });
+      });
       sequence.push({ type: 'static', page: '24', label: 'Cierre corporativo' });
       return sequence;
     }
@@ -1880,6 +1982,46 @@
       `;
     }
 
+    // --- Proyección económica: índice y secciones finales (editables en la página) ---
+    function projImageMarkup(key, src) {
+      return src
+        ? `<div class="proj-image has-image" data-proj-photo="${key}"><img src="${src}" alt="Imagen"><span class="proj-image-hint">Cambiar foto</span></div>`
+        : `<div class="proj-image" data-proj-photo="${key}"><span class="proj-image-hint">Pulsa para añadir foto</span></div>`;
+    }
+
+    function projTopbarMarkup() {
+      return `<div class="proj-topbar"><span class="proj-eyebrow">Proyección económica</span><img src="assets/optima-wordmark.png" alt="ÓptimaCultura"></div>`;
+    }
+
+    function projIndiceMarkup() {
+      const p = state.proyeccion.indice;
+      return `
+        <article class="page proj-page proj-indice-page">
+          ${projTopbarMarkup()}
+          <div class="proj-body">
+            <div class="proj-text" contenteditable="true" data-proj-text="indice" data-placeholder="Escribe aquí el índice: usa negritas y viñetas…">${p.text || ''}</div>
+            ${projImageMarkup('indice', p.image)}
+          </div>
+        </article>
+      `;
+    }
+
+    function projFinalMarkup(sectionId) {
+      const sec = state.proyeccion.finalSections.find((s) => s.id === sectionId);
+      if (!sec) return '';
+      return `
+        <article class="page proj-page proj-final-page">
+          <div class="proj-section-tools"><button type="button" data-proj-section-del="${sec.id}" title="Eliminar sección">✕</button></div>
+          ${projTopbarMarkup()}
+          <div class="proj-body image-first">
+            ${projImageMarkup(sec.id, sec.image)}
+            <h2 class="proj-title" contenteditable="true" data-proj-title="${sec.id}" data-placeholder="Título de la sección">${sec.title || ''}</h2>
+            <div class="proj-text" contenteditable="true" data-proj-text="${sec.id}" data-placeholder="Escribe el contenido: negritas, viñetas e inserta tablas de datos…">${sec.text || ''}</div>
+          </div>
+        </article>
+      `;
+    }
+
     function getActiveLogoSrc() {
       return state.logoBgRemovalEnabled
         ? (state.logoBgRemovedData || state.logoTrimData || state.logoData || '')
@@ -1934,7 +2076,11 @@
               ? budgetMarkup('B')
               : entry.type === 'vr'
                 ? vrStationMarkup()
-                : staticMarkup(entry.page);
+                : entry.type === 'projIndice'
+                  ? projIndiceMarkup()
+                  : entry.type === 'projFinal'
+                    ? projFinalMarkup(entry.sectionId)
+                    : staticMarkup(entry.page);
         return `
           <section class="page-shell">
             <div class="page-label">
@@ -2615,9 +2761,118 @@
     els.exampleBtn.addEventListener('click', () => { loadExample(); setCurrentProposal(null); });
     els.resetBtn.addEventListener('click', () => { resetAll(); setCurrentProposal(null); });
 
+    /* =========================================================
+       Proyección económica: tipo de documento + edición en página
+       ========================================================= */
+    function setDocType(type) {
+      state.docType = (type === 'proyeccion') ? 'proyeccion' : 'presupuesto';
+      document.querySelector('.app').setAttribute('data-doctype', state.docType);
+      document.querySelectorAll('.doc-type-btn').forEach((b) => b.classList.toggle('is-active', b.dataset.doctype === state.docType));
+      if (state.docType === 'proyeccion' && state.proyeccion.finalSections.length === 0) {
+        state.proyeccion.finalSections.push({ id: 'sec' + (++proyeccionSeq), title: '', text: '', image: '' });
+      }
+      renderAll();
+    }
+    document.querySelectorAll('.doc-type-btn').forEach((btn) => {
+      btn.addEventListener('click', () => setDocType(btn.dataset.doctype));
+    });
+
+    document.getElementById('addFinalSectionBtn').addEventListener('click', () => {
+      state.proyeccion.finalSections.push({ id: 'sec' + (++proyeccionSeq), title: '', text: '', image: '' });
+      renderPreview();
+    });
+
+    // Guarda el contenido editable en el estado SIN re-render (para no perder el cursor)
+    els.pages.addEventListener('input', (ev) => {
+      const t = ev.target;
+      if (t.matches && t.matches('.proj-text[data-proj-text]')) {
+        const key = t.dataset.projText;
+        if (key === 'indice') state.proyeccion.indice.text = t.innerHTML;
+        else { const s = state.proyeccion.finalSections.find((x) => x.id === key); if (s) s.text = t.innerHTML; }
+      } else if (t.matches && t.matches('.proj-title[data-proj-title]')) {
+        const s = state.proyeccion.finalSections.find((x) => x.id === t.dataset.projTitle);
+        if (s) s.title = t.textContent;
+      }
+    });
+
+    // Clic en contenedor de imagen -> adjuntar foto; y eliminar sección
+    let projPhotoTarget = null;
+    els.pages.addEventListener('click', (ev) => {
+      const del = ev.target.closest('[data-proj-section-del]');
+      if (del) {
+        state.proyeccion.finalSections = state.proyeccion.finalSections.filter((s) => s.id !== del.dataset.projSectionDel);
+        renderPreview();
+        return;
+      }
+      const photo = ev.target.closest('[data-proj-photo]');
+      if (photo) { projPhotoTarget = photo.dataset.projPhoto; els.projPhotoInput.click(); }
+    });
+    els.projPhotoInput.addEventListener('change', (ev) => {
+      const file = ev.target.files && ev.target.files[0];
+      ev.target.value = '';
+      if (!file || !projPhotoTarget) return;
+      readFileAsDataURL(file, (data) => {
+        if (projPhotoTarget === 'indice') state.proyeccion.indice.image = data;
+        else { const s = state.proyeccion.finalSections.find((x) => x.id === projPhotoTarget); if (s) s.image = data; }
+        projPhotoTarget = null;
+        renderPreview();
+      });
+    });
+
+    // --- Barra flotante de formato rich-text ---
+    const rtToolbar = document.getElementById('rtToolbar');
+    let rtEditor = null, rtRange = null;
+    function saveEditor(editor) { editor.dispatchEvent(new Event('input', { bubbles: true })); }
+    function positionToolbar() {
+      const sel = window.getSelection();
+      if (!sel.rangeCount) { rtToolbar.classList.remove('is-visible'); return; }
+      const rect = sel.getRangeAt(0).getBoundingClientRect();
+      if (!rect.width && !rect.height) { rtToolbar.classList.remove('is-visible'); return; }
+      rtToolbar.style.left = Math.max(8, rect.left) + 'px';
+      rtToolbar.style.top = Math.max(8, rect.top - 46) + 'px';
+      rtToolbar.classList.add('is-visible');
+    }
+    els.pages.addEventListener('focusin', (ev) => {
+      if (ev.target.matches && ev.target.matches('.proj-text[data-proj-text]')) rtEditor = ev.target;
+    });
+    document.addEventListener('selectionchange', () => {
+      const sel = window.getSelection();
+      if (rtEditor && sel.anchorNode && rtEditor.contains(sel.anchorNode) && !sel.isCollapsed) positionToolbar();
+      else if (!rtToolbar.matches(':hover')) rtToolbar.classList.remove('is-visible');
+    });
+    rtToolbar.addEventListener('mousedown', (ev) => {
+      ev.preventDefault();
+      const cmd = ev.target.closest('[data-rt]');
+      if (!cmd || !rtEditor) return;
+      rtEditor.focus();
+      if (cmd.dataset.rt === 'bold') document.execCommand('bold');
+      else if (cmd.dataset.rt === 'bullet') document.execCommand('insertUnorderedList');
+      else if (cmd.dataset.rt === 'image') {
+        const sel = window.getSelection();
+        rtRange = sel.rangeCount ? sel.getRangeAt(0).cloneRange() : null;
+        els.projTextImageInput.click();
+        return;
+      }
+      saveEditor(rtEditor);
+    });
+    els.projTextImageInput.addEventListener('change', (ev) => {
+      const file = ev.target.files && ev.target.files[0];
+      ev.target.value = '';
+      if (!file || !rtEditor) return;
+      readFileAsDataURL(file, (data) => {
+        rtEditor.focus();
+        const sel = window.getSelection();
+        if (rtRange) { sel.removeAllRanges(); sel.addRange(rtRange); }
+        document.execCommand('insertImage', false, data);
+        saveEditor(rtEditor);
+        rtRange = null;
+      });
+    });
+
     // ---- arranque ----
     renderServiceFilter();
     updateSaveButtonLabel();
+    document.querySelector('.app').setAttribute('data-doctype', state.docType);
     renderAll();
     bootstrapSession();
   </script>
