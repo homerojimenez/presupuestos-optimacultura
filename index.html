@@ -124,6 +124,8 @@
     }
 
     textarea { min-height: 110px; resize: vertical; line-height: 1.45; }
+    .additional-info-field { display: grid; gap: 8px; margin-top: 16px; font-size: 0.9rem; font-weight: 600; }
+    .additional-info-field textarea { min-height: 90px; font-weight: 400; }
     .two-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
     .client-name-field {
@@ -593,6 +595,9 @@
     }
     .budget-rma h3 { margin: 0 0 10px; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.06em; }
     .budget-rma ul { margin: 0; padding-left: 18px; line-height: 1.4; font-size: 0.9rem; }
+    .budget-additional { margin: 12px 0 0; padding: 16px 18px; background: #f4f4f4; border-radius: 20px; }
+    .budget-additional h3 { margin: 0 0 8px; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.06em; }
+    .budget-additional p { margin: 0; line-height: 1.5; font-size: 0.9rem; color: #2a2a2a; }
     .budget-footer { display: grid; grid-template-columns: 1.08fr 0.92fr; gap: 12px; margin-top: 10px; }
     .metric-card {
       min-height: 112px;
@@ -1046,6 +1051,9 @@
             </div>
           </div>
         </div>
+        <label class="additional-info-field">Información adicional
+          <textarea id="additionalInfoInput" rows="4" placeholder="Texto libre que aparecerá al final de la página de oferta económica."></textarea>
+        </label>
       </section>
 
       <div class="actions">
@@ -1201,6 +1209,7 @@
       openProposalBtn: document.getElementById('openProposalBtn'),
       printBtn: document.getElementById('printBtn'),
       resetBtn: document.getElementById('resetBtn'),
+      additionalInfoInput: document.getElementById('additionalInfoInput'),
       projPhotoInput: document.getElementById('projPhotoInput'),
       projTextImageInput: document.getElementById('projTextImageInput')
     };
@@ -1600,6 +1609,12 @@
               <li>Reposición de los elementos deteriorados, averiados o en mal estado.</li>
             </ul>
           </div>
+          ${((scope === 'B') || !state.optionBEnabled) && (state.additionalInfo || '').trim() ? `
+            <div class="budget-additional">
+              <h3>Información adicional</h3>
+              <p>${escapeHTML(state.additionalInfo).replace(/\n/g, '<br>')}</p>
+            </div>
+          ` : ''}
         </article>
       `;
     }
@@ -2260,6 +2275,7 @@
       els.optionBPriceInput.value = state.optionBPrice;
       els.optionBPriceNoteInput.value = state.optionBPriceNote;
       els.optionBDurationInput.value = state.optionBDuration;
+      els.additionalInfoInput.value = state.additionalInfo || '';
       setServiceCheckboxes(Array.from(state.services));
     }
 
@@ -2435,6 +2451,11 @@
 
     els.priceInput.addEventListener('input', (ev) => {
       state.price = ev.target.value;
+      renderText();
+    });
+
+    els.additionalInfoInput.addEventListener('input', (ev) => {
+      state.additionalInfo = ev.target.value;
       renderText();
     });
 
