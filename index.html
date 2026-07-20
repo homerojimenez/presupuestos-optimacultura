@@ -718,9 +718,131 @@
       .client-inline-row { grid-template-columns: 1fr; }
     }
 
+    /* ---------- Autenticación y modales ---------- */
+    body.booting .app,
+    body.booting #loginOverlay { display: none; }
+    body.needs-login .app { display: none; }
+    #loginOverlay { display: none; }
+    body.needs-login #loginOverlay { display: flex; }
+
+    .login-overlay {
+      position: fixed; inset: 0; z-index: 9999;
+      align-items: center; justify-content: center; padding: 24px;
+      background:
+        radial-gradient(circle at top left, rgba(255,255,255,0.9), transparent 28%),
+        linear-gradient(180deg, rgba(232,232,232,0.98) 0%, rgba(220,220,220,0.98) 100%);
+    }
+    .login-card {
+      width: min(100%, 420px); padding: 28px; border-radius: 28px;
+      background: rgba(255,255,255,0.96); border: 1px solid rgba(0,0,0,0.08);
+      box-shadow: 0 26px 70px rgba(0,0,0,0.14);
+    }
+    .login-chip {
+      display: inline-flex; align-items: center; gap: 10px; padding: 8px 12px;
+      border-radius: 999px; background: #fff; border: 1px solid var(--line);
+      font-size: 0.74rem; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 16px;
+    }
+    .login-chip::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: #111; }
+    .login-title { margin: 0 0 8px; font-size: 1.6rem; line-height: 1.05; }
+    .login-subtitle { margin: 0 0 18px; color: var(--muted); line-height: 1.45; }
+    .login-fields { display: grid; gap: 12px; }
+    .login-fields label { display: grid; gap: 8px; font-size: 0.9rem; font-weight: 600; }
+    .login-fields input {
+      width: 100%; min-height: 52px; border: 1px solid var(--line); border-radius: 14px;
+      background: #fff; padding: 12px 15px; font: inherit; font-size: 1rem; color: var(--ink); outline: none;
+      transition: border-color .15s ease, box-shadow .15s ease;
+    }
+    .login-fields input:focus { border-color: #7d7d7d; box-shadow: 0 0 0 4px rgba(0,0,0,0.05); }
+    .login-error { min-height: 1.2em; margin-top: 12px; color: #9d1c1c; font-size: 0.88rem; font-weight: 600; }
+
+    /* Barra de usuario en la cabecera del sidebar */
+    .user-bar {
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+      margin: 12px 0 4px; padding: 10px 12px; border-radius: 14px;
+      background: #fff; border: 1px solid var(--line);
+    }
+    .user-bar .user-name { font-weight: 700; font-size: 0.92rem; }
+    .user-bar .user-role {
+      font-size: 0.66rem; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 2px 8px;
+    }
+    .user-bar .spacer { flex: 1; }
+    .user-bar button {
+      min-height: 34px; padding: 6px 12px; font-size: 0.82rem; border-radius: 10px;
+      border: 1px solid var(--line); background: #fff; cursor: pointer;
+    }
+    .user-bar button:hover { background: #f2f2f2; }
+
+    /* Modales genéricos (histórico / usuarios) */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 9000; display: none;
+      align-items: center; justify-content: center; padding: 24px;
+      background: rgba(20,20,20,0.42);
+    }
+    .modal-overlay.is-open { display: flex; }
+    .modal-card {
+      width: min(100%, 760px); max-height: 88vh; display: flex; flex-direction: column;
+      background: var(--card); border-radius: 22px; border: 1px solid rgba(0,0,0,0.08);
+      box-shadow: 0 30px 80px rgba(0,0,0,0.24); overflow: hidden;
+    }
+    .modal-head {
+      display: flex; align-items: center; gap: 12px; padding: 18px 22px;
+      border-bottom: 1px solid var(--line);
+    }
+    .modal-head h2 { margin: 0; font-size: 1.15rem; }
+    .modal-head .spacer { flex: 1; }
+    .modal-close {
+      width: 34px; height: 34px; border-radius: 10px; border: 1px solid var(--line);
+      background: #fff; cursor: pointer; font-size: 1.1rem; line-height: 1;
+    }
+    .modal-body { padding: 18px 22px; overflow: auto; }
+    .modal-toolbar { display: grid; gap: 12px; margin-bottom: 16px; }
+    .modal-toolbar input[type="search"], .modal-toolbar input[type="text"], .modal-toolbar input[type="password"] {
+      width: 100%; min-height: 44px; border: 1px solid var(--line); border-radius: 12px;
+      padding: 10px 14px; font: inherit; outline: none;
+    }
+    .service-filter { display: flex; flex-wrap: wrap; gap: 8px; }
+    .service-filter label {
+      display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px;
+      border: 1px solid var(--line); border-radius: 999px; font-size: 0.82rem; cursor: pointer; user-select: none;
+    }
+    .service-filter input { accent-color: #111; }
+
+    .history-list { display: grid; gap: 10px; }
+    .history-item {
+      display: flex; align-items: center; gap: 12px; padding: 12px 14px;
+      border: 1px solid var(--line); border-radius: 14px; background: #fff;
+    }
+    .history-item .h-main { flex: 1; min-width: 0; }
+    .history-item .h-name { font-weight: 700; }
+    .history-item .h-meta { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
+    .history-item .h-svcs { margin-top: 6px; display: flex; flex-wrap: wrap; gap: 4px; }
+    .history-item .h-svcs span {
+      font-size: 0.7rem; background: #f0f0f0; border-radius: 999px; padding: 2px 8px; color: #333;
+    }
+    .history-item .h-actions { display: flex; gap: 6px; }
+    .history-item .h-actions button {
+      min-height: 34px; padding: 6px 12px; font-size: 0.82rem; border-radius: 10px;
+      border: 1px solid var(--line); background: #fff; cursor: pointer;
+    }
+    .history-item .h-actions .danger { color: #9d1c1c; border-color: #e3b7b7; }
+    .history-item .h-actions button:hover { background: #f2f2f2; }
+    .modal-empty { color: var(--muted); text-align: center; padding: 30px 10px; }
+
+    .users-table { width: 100%; border-collapse: collapse; }
+    .users-table th, .users-table td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--line); font-size: 0.88rem; }
+    .users-new { display: grid; grid-template-columns: 1.2fr 1.2fr 0.8fr auto; gap: 8px; align-items: end; margin-top: 14px; }
+    .users-new label { display: grid; gap: 4px; font-size: 0.78rem; font-weight: 600; }
+    .users-new input, .users-new select { min-height: 40px; border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; font: inherit; }
+    .modal-msg { min-height: 1.1em; font-size: 0.84rem; margin-top: 8px; }
+    .modal-msg.error { color: #9d1c1c; }
+    .modal-msg.ok { color: #1c7d3a; }
+    @media (max-width: 620px) { .users-new { grid-template-columns: 1fr; } }
+
     @media print {
       @page { size: A4 portrait; margin: 0; }
       html, body { background: #fff !important; }
+      #loginOverlay, .modal-overlay { display: none !important; }
       .app { display: block; }
       .sidebar, .preview-header, .page-label { display: none !important; }
       .preview-area { padding: 0 !important; background: #fff !important; }
@@ -731,13 +853,38 @@
     }
   </style>
 </head>
-<body>
+<body class="booting">
 
+  <div id="loginOverlay" class="login-overlay">
+    <div class="login-card">
+      <div class="login-chip">ÓptimaCultura · Acceso</div>
+      <h1 class="login-title">Acceso a presupuestos</h1>
+      <p class="login-subtitle">Introduce tus credenciales para continuar.</p>
+      <form id="loginForm" class="login-fields" autocomplete="on">
+        <label>Usuario
+          <input id="loginUser" type="text" autocomplete="username" placeholder="Usuario" />
+        </label>
+        <label>Contraseña
+          <input id="loginPass" type="password" autocomplete="current-password" placeholder="Contraseña" />
+        </label>
+        <button id="loginSubmit" type="submit" class="primary">Entrar</button>
+      </form>
+      <div id="loginError" class="login-error"></div>
+    </div>
+  </div>
 
   <div class="app">
     <aside class="sidebar">
       <div class="eyebrow">ÓptimaCultura · Propuestas</div>
       <h1>Constructor de propuestas</h1>
+
+      <div class="user-bar">
+        <span class="user-name" id="userName">—</span>
+        <span class="user-role" id="userRole" hidden>—</span>
+        <span class="spacer"></span>
+        <button id="manageUsersBtn" type="button" hidden>Usuarios</button>
+        <button id="logoutBtn" type="button">Salir</button>
+      </div>
 
       <section class="section">
         <h2>1. Datos del cliente</h2>
@@ -879,14 +1026,13 @@
       </section>
 
       <div class="actions">
-        <button id="saveProposalBtn" class="secondary">Guardar propuesta</button>
-        <button id="openProposalBtn" class="secondary">Abrir propuesta</button>
+        <button id="saveProposalBtn" class="primary">Guardar en histórico</button>
+        <button id="openProposalBtn" class="secondary">Histórico</button>
         <button id="printBtn" class="primary">Exportar PDF</button>
         <button id="exportKitBtn" class="secondary">Exportar PDF + datos</button>
         <button id="exampleBtn" class="secondary">Cargar ejemplo</button>
-        <button id="resetBtn" class="secondary">Reiniciar</button>
+        <button id="resetBtn" class="secondary">Nueva propuesta</button>
       </div>
-      <input id="proposalFileInput" type="file" accept=".optima.json,.json,application/json" style="display:none" />
     </aside>
 
     <main class="preview-area">
@@ -899,6 +1045,54 @@
       </div>
       <div id="pages"></div>
     </main>
+  </div>
+
+  <!-- Modal: histórico de propuestas -->
+  <div id="historyModal" class="modal-overlay" aria-hidden="true">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h2>Histórico de propuestas</h2>
+        <span class="spacer"></span>
+        <button class="modal-close" data-close-modal="historyModal" type="button" aria-label="Cerrar">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-toolbar">
+          <input id="historySearch" type="search" placeholder="Buscar por nombre de cliente…" autocomplete="off" />
+          <div id="historyServiceFilter" class="service-filter"></div>
+        </div>
+        <div id="historyList" class="history-list"></div>
+        <div id="historyEmpty" class="modal-empty" hidden>No hay propuestas que coincidan.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: gestión de usuarios (solo admin) -->
+  <div id="usersModal" class="modal-overlay" aria-hidden="true">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h2>Usuarios</h2>
+        <span class="spacer"></span>
+        <button class="modal-close" data-close-modal="usersModal" type="button" aria-label="Cerrar">×</button>
+      </div>
+      <div class="modal-body">
+        <table class="users-table">
+          <thead><tr><th>Usuario</th><th>Rol</th><th></th></tr></thead>
+          <tbody id="usersTableBody"></tbody>
+        </table>
+        <form id="newUserForm" class="users-new">
+          <label>Usuario<input id="newUserName" type="text" autocomplete="off" /></label>
+          <label>Contraseña<input id="newUserPass" type="password" autocomplete="new-password" /></label>
+          <label>Rol
+            <select id="newUserRole">
+              <option value="user">Usuario</option>
+              <option value="admin">Administrador</option>
+            </select>
+          </label>
+          <button type="submit" class="primary">Crear</button>
+        </form>
+        <div id="usersMsg" class="modal-msg"></div>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -966,7 +1160,6 @@
       pageCount: document.getElementById('pageCount'),
       saveProposalBtn: document.getElementById('saveProposalBtn'),
       openProposalBtn: document.getElementById('openProposalBtn'),
-      proposalFileInput: document.getElementById('proposalFileInput'),
       printBtn: document.getElementById('printBtn'),
       exportKitBtn: document.getElementById('exportKitBtn'),
       exampleBtn: document.getElementById('exampleBtn'),
@@ -2215,13 +2408,6 @@
       renderAll();
     }
 
-    async function openProposalFile(file) {
-      if (!file) return;
-      const raw = await file.text();
-      const payload = JSON.parse(raw);
-      await applyState(payload);
-    }
-
     function setServiceCheckboxes(values) {
       document.querySelectorAll('[data-service]').forEach((checkbox) => {
         checkbox.checked = values.includes(checkbox.dataset.service);
@@ -2421,46 +2607,321 @@
       }
     }
 
-    els.saveProposalBtn.addEventListener('click', () => {
-      downloadProposalData(getProposalBaseName());
-    });
+    /* =========================================================
+       Integración con el backend: sesión, histórico y usuarios
+       ========================================================= */
+    const ui = {
+      loginOverlay: document.getElementById('loginOverlay'),
+      loginForm: document.getElementById('loginForm'),
+      loginUser: document.getElementById('loginUser'),
+      loginPass: document.getElementById('loginPass'),
+      loginError: document.getElementById('loginError'),
+      loginSubmit: document.getElementById('loginSubmit'),
+      userName: document.getElementById('userName'),
+      userRole: document.getElementById('userRole'),
+      logoutBtn: document.getElementById('logoutBtn'),
+      manageUsersBtn: document.getElementById('manageUsersBtn'),
+      historyModal: document.getElementById('historyModal'),
+      historySearch: document.getElementById('historySearch'),
+      historyServiceFilter: document.getElementById('historyServiceFilter'),
+      historyList: document.getElementById('historyList'),
+      historyEmpty: document.getElementById('historyEmpty'),
+      usersModal: document.getElementById('usersModal'),
+      usersTableBody: document.getElementById('usersTableBody'),
+      newUserForm: document.getElementById('newUserForm'),
+      newUserName: document.getElementById('newUserName'),
+      newUserPass: document.getElementById('newUserPass'),
+      newUserRole: document.getElementById('newUserRole'),
+      usersMsg: document.getElementById('usersMsg')
+    };
 
-    els.openProposalBtn.addEventListener('click', () => {
-      els.proposalFileInput.click();
-    });
+    let currentUser = null;
+    let currentProposalId = null;
 
-    els.proposalFileInput.addEventListener('change', async (ev) => {
-      const file = ev.target.files && ev.target.files[0];
-      if (!file) return;
+    async function api(path, options = {}) {
+      const opts = { credentials: 'same-origin', headers: {}, ...options };
+      if (opts.body && typeof opts.body !== 'string') {
+        opts.headers['Content-Type'] = 'application/json';
+        opts.body = JSON.stringify(opts.body);
+      }
+      const res = await fetch(path, opts);
+      let data = null;
+      try { data = await res.json(); } catch { data = null; }
+      if (!res.ok) {
+        const err = new Error((data && data.error) || `Error ${res.status}`);
+        err.status = res.status;
+        throw err;
+      }
+      return data;
+    }
+
+    // ---- sesión ----
+    function showApp(user) {
+      currentUser = user;
+      document.body.classList.remove('booting', 'needs-login');
+      ui.userName.textContent = user.username;
+      ui.userRole.textContent = user.role === 'admin' ? 'Admin' : 'Usuario';
+      ui.userRole.hidden = false;
+      ui.manageUsersBtn.hidden = user.role !== 'admin';
+    }
+
+    function showLogin() {
+      currentUser = null;
+      document.body.classList.remove('booting');
+      document.body.classList.add('needs-login');
+      ui.loginError.textContent = '';
+      ui.loginPass.value = '';
+      setTimeout(() => ui.loginUser.focus(), 50);
+    }
+
+    async function bootstrapSession() {
       try {
-        await openProposalFile(file);
-      } catch (error) {
-        console.error('No se pudo abrir la propuesta', error);
-        alert('No se ha podido abrir el archivo de propuesta. Comprueba que sea un .optima.json válido.');
+        const data = await api('/api/me');
+        showApp(data.user);
+      } catch {
+        showLogin();
+      }
+    }
+
+    ui.loginForm.addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      ui.loginError.textContent = '';
+      ui.loginSubmit.disabled = true;
+      try {
+        const data = await api('/api/login', { method: 'POST', body: {
+          username: ui.loginUser.value.trim(), password: ui.loginPass.value
+        }});
+        showApp(data.user);
+      } catch (err) {
+        ui.loginError.textContent = err.message || 'No se pudo iniciar sesión';
+        ui.loginPass.focus();
+        ui.loginPass.select();
       } finally {
-        els.proposalFileInput.value = '';
+        ui.loginSubmit.disabled = false;
       }
     });
 
-    els.printBtn.addEventListener('click', async () => {
-      await runPdfExport(els.printBtn);
+    ui.logoutBtn.addEventListener('click', async () => {
+      try { await api('/api/logout', { method: 'POST' }); } catch (e) {}
+      setCurrentProposal(null);
+      showLogin();
     });
 
+    // ---- guardar / cargar propuesta ----
+    function updateSaveButtonLabel() {
+      els.saveProposalBtn.textContent = currentProposalId
+        ? 'Actualizar en histórico' : 'Guardar en histórico';
+    }
+    function setCurrentProposal(id) {
+      currentProposalId = id || null;
+      updateSaveButtonLabel();
+    }
+
+    async function saveProposalToHistory() {
+      const btn = els.saveProposalBtn;
+      btn.disabled = true;
+      btn.textContent = 'Guardando…';
+      try {
+        const payload = proposalToSerializable();
+        const data = currentProposalId
+          ? await api(`/api/proposals/${currentProposalId}`, { method: 'PUT', body: { payload } })
+          : await api('/api/proposals', { method: 'POST', body: { payload } });
+        currentProposalId = data.id;
+        // Sustituye las imágenes base64 por sus URLs para no duplicarlas al re-guardar.
+        if (data.payload) {
+          state.heroData = data.payload.heroData || '';
+          state.logoData = data.payload.logoData || '';
+        }
+        btn.textContent = '✓ Guardado';
+        setTimeout(updateSaveButtonLabel, 1200);
+      } catch (err) {
+        alert('No se pudo guardar: ' + (err.message || 'error'));
+        updateSaveButtonLabel();
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    async function loadProposalFromHistory(id) {
+      const data = await api(`/api/proposals/${id}`);
+      await applyState(data.payload);
+      setCurrentProposal(id);
+    }
+
+    // ---- histórico (modal + búsqueda) ----
+    const SERVICE_LIST = Object.entries(SERVICES).map(([key, v]) => ({ key, label: v.label }));
+
+    function renderServiceFilter() {
+      ui.historyServiceFilter.innerHTML = SERVICE_LIST.map((s) => `
+        <label><input type="checkbox" value="${s.key}"><span>${escapeHTML(s.label)}</span></label>
+      `).join('');
+    }
+
+    function formatDate(iso) {
+      const d = new Date(iso);
+      return isNaN(d.getTime()) ? '' : d.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    }
+
+    async function refreshHistory() {
+      const q = ui.historySearch.value.trim();
+      const services = Array.from(ui.historyServiceFilter.querySelectorAll('input:checked')).map((c) => c.value);
+      const params = new URLSearchParams();
+      if (q) params.set('q', q);
+      if (services.length) params.set('services', services.join(','));
+      let list = [];
+      try {
+        const data = await api('/api/proposals?' + params.toString());
+        list = data.proposals || [];
+      } catch (err) {
+        ui.historyEmpty.hidden = true;
+        ui.historyList.innerHTML = `<div class="modal-empty">No se pudo cargar el histórico: ${escapeHTML(err.message)}</div>`;
+        return;
+      }
+      const serviceLabel = (k) => (SERVICES[k] ? SERVICES[k].label : k);
+      ui.historyEmpty.hidden = list.length > 0;
+      ui.historyList.innerHTML = list.map((p) => `
+        <div class="history-item" data-id="${p.id}">
+          <div class="h-main">
+            <div class="h-name">${escapeHTML(p.clientName || 'Sin nombre')}</div>
+            <div class="h-meta">${escapeHTML(p.owner || '—')} · ${escapeHTML(formatDate(p.updatedAt))}</div>
+            <div class="h-svcs">${p.services.map((s) => `<span>${escapeHTML(serviceLabel(s))}</span>`).join('')}</div>
+          </div>
+          <div class="h-actions">
+            <button data-history-load="${p.id}" type="button">Cargar</button>
+            <button data-history-delete="${p.id}" class="danger" type="button">Eliminar</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    let historyDebounce = 0;
+    function scheduleHistoryRefresh() {
+      clearTimeout(historyDebounce);
+      historyDebounce = setTimeout(refreshHistory, 220);
+    }
+
+    // ---- modales genéricos ----
+    function openModal(el) { el.classList.add('is-open'); el.setAttribute('aria-hidden', 'false'); }
+    function closeModal(el) { el.classList.remove('is-open'); el.setAttribute('aria-hidden', 'true'); }
+
+    document.querySelectorAll('[data-close-modal]').forEach((btn) => {
+      btn.addEventListener('click', () => closeModal(document.getElementById(btn.dataset.closeModal)));
+    });
+    document.querySelectorAll('.modal-overlay').forEach((overlay) => {
+      overlay.addEventListener('click', (ev) => { if (ev.target === overlay) closeModal(overlay); });
+    });
+    document.addEventListener('keydown', (ev) => {
+      if (ev.key === 'Escape') document.querySelectorAll('.modal-overlay.is-open').forEach(closeModal);
+    });
+
+    els.openProposalBtn.addEventListener('click', () => {
+      openModal(ui.historyModal);
+      refreshHistory();
+      setTimeout(() => ui.historySearch.focus(), 50);
+    });
+    ui.historySearch.addEventListener('input', scheduleHistoryRefresh);
+    ui.historyServiceFilter.addEventListener('change', refreshHistory);
+    ui.historyList.addEventListener('click', async (ev) => {
+      const loadBtn = ev.target.closest('[data-history-load]');
+      const delBtn = ev.target.closest('[data-history-delete]');
+      if (loadBtn) {
+        try {
+          await loadProposalFromHistory(Number(loadBtn.dataset.historyLoad));
+          closeModal(ui.historyModal);
+        } catch (err) {
+          alert('No se pudo cargar la propuesta: ' + err.message);
+        }
+      } else if (delBtn) {
+        if (!confirm('¿Eliminar esta propuesta del histórico? Esta acción no se puede deshacer.')) return;
+        const id = Number(delBtn.dataset.historyDelete);
+        try {
+          await api(`/api/proposals/${id}`, { method: 'DELETE' });
+          if (currentProposalId === id) setCurrentProposal(null);
+          refreshHistory();
+        } catch (err) {
+          alert('No se pudo eliminar: ' + err.message);
+        }
+      }
+    });
+
+    // ---- gestión de usuarios (admin) ----
+    async function refreshUsers() {
+      ui.usersMsg.textContent = '';
+      ui.usersMsg.className = 'modal-msg';
+      try {
+        const data = await api('/api/users');
+        ui.usersTableBody.innerHTML = data.users.map((u) => `
+          <tr>
+            <td>${escapeHTML(u.username)}</td>
+            <td>${u.role === 'admin' ? 'Administrador' : 'Usuario'}</td>
+            <td style="text-align:right">${u.id === currentUser.id
+              ? '<span style="color:#999">tú</span>'
+              : `<button data-user-delete="${u.id}" class="danger" type="button">Eliminar</button>`}</td>
+          </tr>
+        `).join('');
+      } catch (err) {
+        ui.usersTableBody.innerHTML = '';
+        ui.usersMsg.textContent = err.message;
+        ui.usersMsg.className = 'modal-msg error';
+      }
+    }
+
+    ui.manageUsersBtn.addEventListener('click', () => {
+      openModal(ui.usersModal);
+      refreshUsers();
+    });
+    ui.usersTableBody.addEventListener('click', async (ev) => {
+      const btn = ev.target.closest('[data-user-delete]');
+      if (!btn) return;
+      if (!confirm('¿Eliminar este usuario?')) return;
+      try {
+        await api(`/api/users/${btn.dataset.userDelete}`, { method: 'DELETE' });
+        refreshUsers();
+      } catch (err) {
+        ui.usersMsg.textContent = err.message;
+        ui.usersMsg.className = 'modal-msg error';
+      }
+    });
+    ui.newUserForm.addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      try {
+        await api('/api/users', { method: 'POST', body: {
+          username: ui.newUserName.value.trim(),
+          password: ui.newUserPass.value,
+          role: ui.newUserRole.value
+        }});
+        ui.newUserName.value = '';
+        ui.newUserPass.value = '';
+        ui.newUserRole.value = 'user';
+        ui.usersMsg.textContent = 'Usuario creado.';
+        ui.usersMsg.className = 'modal-msg ok';
+        refreshUsers();
+      } catch (err) {
+        ui.usersMsg.textContent = err.message;
+        ui.usersMsg.className = 'modal-msg error';
+      }
+    });
+
+    // ---- acciones principales ----
+    els.saveProposalBtn.addEventListener('click', saveProposalToHistory);
+    els.printBtn.addEventListener('click', async () => { await runPdfExport(els.printBtn); });
     els.exportKitBtn.addEventListener('click', async () => {
       downloadProposalData(getProposalBaseName());
       await runPdfExport(els.exportKitBtn);
     });
+    els.exampleBtn.addEventListener('click', () => { loadExample(); setCurrentProposal(null); });
+    els.resetBtn.addEventListener('click', () => { resetAll(); setCurrentProposal(null); });
 
     window.addEventListener('beforeprint', () => {
-      if (!vrPrintPrepared) {
-        prepareVrPrintAssets().catch(() => {});
-      }
+      if (!vrPrintPrepared) prepareVrPrintAssets().catch(() => {});
     });
     window.addEventListener('afterprint', restoreVrPrintAssets);
-    els.exampleBtn.addEventListener('click', loadExample);
-    els.resetBtn.addEventListener('click', resetAll);
 
+    // ---- arranque ----
+    renderServiceFilter();
+    updateSaveButtonLabel();
     renderAll();
+    bootstrapSession();
   </script>
 </body>
 </html>
