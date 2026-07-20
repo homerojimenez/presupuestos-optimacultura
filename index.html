@@ -25,7 +25,6 @@
     html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink); font-family: var(--font); }
     body { min-height: 100vh; }
 
-
     .app {
       min-height: 100vh;
       display: grid;
@@ -506,157 +505,85 @@
     }
 
     .cover-page {
-      background: #ededed;
-      padding: 4.4% 4.4% 0 0;
+      background: #f5f5f5;
+      padding: 7% 7% 4.5%;
       display: flex;
       flex-direction: column;
     }
-    .cover-bg-circle-a,
-    .cover-bg-circle-b {
-      position: absolute;
-      border-radius: 50%;
-      pointer-events: none;
-    }
-    .cover-bg-circle-a {
-      width: 66%;
-      aspect-ratio: 1;
-      top: -1.5%;
-      right: 11.5%;
-      background: rgba(255,255,255,0.58);
-    }
-    .cover-bg-circle-b {
-      width: 110%;
-      aspect-ratio: 1;
-      top: -18%;
-      left: -37%;
-      background: rgba(255,255,255,0.24);
-    }
-    .cover-kicker {
-      position: relative;
-      z-index: 1;
-      text-align: center;
-      font-size: clamp(0.95rem, 1.25vw, 1.2rem);
-      font-weight: 700;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      margin-bottom: 4.4%;
-    }
-    .cover-text {
-      position: relative;
-      z-index: 1;
-      width: 77%;
-      margin-left: 4.4%;
+    .cover-head {
       display: flex;
-      flex-direction: column;
       align-items: flex-start;
-      gap: 1.1%;
+      justify-content: space-between;
+      gap: 4%;
     }
+    .cover-headings { flex: 1; min-width: 0; }
     .cover-title {
       margin: 0;
-      font-size: clamp(3.1rem, 6vw, 5.4rem);
-      line-height: 0.92;
-      font-weight: 700;
-      letter-spacing: -0.055em;
-      text-transform: uppercase;
-      word-break: break-word;
+      font-size: clamp(2rem, 4.8vw, 4.2rem);
+      line-height: 0.98;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: #111;
+      overflow-wrap: break-word;
     }
     .cover-subtitle {
-      font-size: clamp(1.02rem, 1.95vw, 1.58rem);
-      line-height: 1.12;
-      font-weight: 300;
-      letter-spacing: -0.03em;
-      text-transform: uppercase;
-      color: #171717;
+      margin-top: 3.5%;
+      font-size: clamp(0.85rem, 1.7vw, 1.35rem);
+      font-weight: 500;
+      letter-spacing: 0.01em;
+      color: #555;
     }
-    .cover-media {
-      position: relative;
-      z-index: 1;
+    .cover-logo-box {
+      flex: 0 0 auto;
+      width: 20%;
+      aspect-ratio: 1 / 1;
+      border-radius: 16%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 7%;
+      overflow: hidden;
+    }
+    .cover-logo-box img {
+      max-width: 100%;
+      max-height: 100%;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      display: block;
+    }
+    .cover-photo {
       flex: 1;
       min-height: 0;
-      margin-top: 3.2%;
-    }
-    .hero-frame {
-      position: absolute;
-      left: 0;
-      right: 9.7%;
-      top: 0;
-      bottom: 0;
+      margin-top: 6%;
+      border-radius: 28px;
       overflow: hidden;
-      border-top-right-radius: 200px;
       background: linear-gradient(135deg, #d1d1d1, #bdbdbd);
     }
-    .hero-frame img {
+    .cover-photo img {
       width: 100%;
       height: 100%;
       object-fit: cover;
-      object-position: center center;
+      object-position: center;
       display: block;
-      image-rendering: auto;
     }
-    .hero-fallback {
-      position: absolute;
-      inset: 0;
+    .cover-photo .hero-fallback {
+      width: 100%;
+      height: 100%;
       display: grid;
       place-items: center;
       text-align: center;
-      padding: 30px;
-      color: rgba(0,0,0,0.52);
+      color: rgba(0,0,0,0.5);
       font-size: 1rem;
       text-transform: uppercase;
       letter-spacing: 0.1em;
     }
-    .client-logo-box {
-      position: absolute;
-      left: 0;
-      bottom: 10.6%;
-      width: var(--logo-shell-width, 44%);
-      aspect-ratio: var(--logo-shell-ratio, 2.8 / 1);
-      min-height: 13%;
-      max-height: 32%;
-      border-radius: 0 44px 44px 0;
+    .cover-brand {
+      margin-top: 4.5%;
       display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: var(--logo-shell-pad-block, 2.2%) var(--logo-shell-pad-inline-end, 5.4%) var(--logo-shell-pad-block, 2.2%) var(--logo-shell-pad-inline-start, 4.6%);
-      overflow: hidden;
-      border: 1px solid rgba(0,0,0,0.04);
-      box-shadow: 0 3px 14px rgba(0,0,0,0.03);
-    }
-    .client-logo-fit {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      align-items: center;
       justify-content: center;
     }
-    .client-logo-box img {
-      display: block;
-      width: auto;
-      height: auto;
-      max-width: 100%;
-      max-height: 100%;
-      object-fit: contain;
-      image-rendering: auto;
-    }
-    .client-logo-placeholder {
-      text-align: center;
-      color: rgba(0,0,0,0.72);
-      font-size: clamp(0.88rem, 1.5vw, 1.25rem);
-      letter-spacing: -0.03em;
-      text-transform: uppercase;
-      padding-right: 3%;
-    }
-    .brand-svg-wrap {
-      position: absolute;
-      right: 3.1%;
-      bottom: 3.2%;
-      width: 4.2%;
-      height: 35.5%;
-      display: flex;
-      align-items: flex-end;
-      justify-content: center;
-    }
-    .brand-svg-wrap svg { width: 100%; height: 100%; display: block; }
+    .cover-brand img { width: 26%; height: auto; display: block; }
 
     .static-page img {
       width: 100%;
@@ -665,7 +592,6 @@
       display: block;
       image-rendering: auto;
     }
-
 
     .budget-page {
       background: linear-gradient(180deg, #f4f4f4 0%, #ececec 100%);
@@ -906,7 +832,7 @@
               </div>
             </label>
             <label class="upload-card upload-card-color">Color del contenedor del logo
-              <input id="logoBgInput" type="color" value="#efefef" />
+              <input id="logoBgInput" type="color" value="#111111" />
               <div id="colorThumb" class="color-thumb"></div>
             </label>
           </div>
@@ -1096,8 +1022,6 @@
   </div>
 
   <script>
-    const COMPANY_SVG = `<svg viewBox="0 0 30 264" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M29.5474 250.591C29.5474 253.049 29.0666 255.222 28.1149 257.12C27.1338 258.998 25.77 260.453 24.0039 261.495C22.2182 262.538 20.1578 263.059 17.8325 263.059C15.5072 263.059 13.4566 262.538 11.6905 261.495C9.90479 260.453 8.53118 258.998 7.57946 257.12C6.59831 255.222 6.11755 253.049 6.11755 250.591C6.11755 248.133 6.60812 245.999 7.57946 244.121C8.53118 242.224 9.90479 240.759 11.6905 239.716C13.4565 238.674 15.5072 238.153 17.8325 238.153C20.1578 238.153 22.2182 238.674 24.0039 239.716C25.77 240.759 27.1436 242.224 28.1149 244.121C29.0666 245.999 29.5474 248.153 29.5474 250.591ZM24.3767 250.591C24.3767 249.342 24.102 248.241 23.5624 247.278C23.0228 246.324 22.2673 245.567 21.2861 245.026C20.2853 244.485 19.1374 244.21 17.8227 244.21C16.5079 244.21 15.36 244.485 14.3592 245.026C13.3584 245.567 12.5931 246.314 12.0535 247.278C11.5139 248.231 11.2391 249.342 11.2391 250.591C11.2391 251.84 11.5139 252.951 12.0535 253.934C12.5931 254.888 13.3584 255.645 14.3592 256.186C15.36 256.707 16.5079 256.963 17.8227 256.963C19.1374 256.963 20.2853 256.707 21.2861 256.186C22.2673 255.645 23.0228 254.898 23.5624 253.934C24.102 252.951 24.3767 251.84 24.3767 250.591ZM6.70624 235.557L6.70624 224.751C6.70624 223.355 6.99077 221.979 7.55003 220.632C8.10928 219.275 8.96288 218.164 10.1108 217.289C11.249 216.394 12.6324 215.941 14.2611 215.941C15.7132 215.941 17.0181 216.325 18.1562 217.102C19.2944 217.849 20.2069 218.901 20.8642 220.258C21.5118 221.595 21.8258 223.109 21.8258 224.82V229.54H28.9685V235.567H6.71605L6.70624 235.557ZM17.3615 225.931C17.3615 225.164 17.234 224.486 16.9887 223.896C16.714 223.296 16.3509 222.824 15.8996 222.49C15.4188 222.156 14.8694 221.988 14.2513 221.988C13.6332 221.988 13.1131 222.156 12.6324 222.49C12.1516 222.824 11.7886 223.296 11.5433 223.896C11.2686 224.476 11.141 225.155 11.141 225.931V229.52H17.3713V225.931H17.3615ZM11.8769 208.341V214.811H6.70624L6.70624 195.814H11.8769L11.8769 202.284H28.9587V208.341H11.8769ZM6.70624 193.612L6.70624 187.516H28.9587V193.612H6.70624ZM6.70624 184.153L6.70624 176.346L22.1986 170.289L6.70624 164.164L6.70624 156.386H28.9587V161.912H14.1826L28.9587 167.88V172.688L14.212 178.627H28.9587V184.153H6.70624ZM6.70623 146.632V139.199L28.9587 131.293L28.9587 137.665L24.8477 138.943L24.8477 146.907L28.9587 148.215V154.557L6.70623 146.622V146.632ZM20.5993 140.005L11.4059 142.906L20.5993 145.875V140.005ZM29.7044 119.14C29.7044 121.245 29.204 123.132 28.213 124.794C27.2123 126.436 25.819 127.734 24.0333 128.668C22.2476 129.602 20.2265 130.074 17.9895 130.074C15.7524 130.074 13.7313 129.651 11.9456 128.796C10.1599 127.921 8.76665 126.711 7.76588 125.168C6.7651 123.604 6.27453 121.844 6.27453 119.888C6.27453 118.472 6.59831 117.135 7.23606 115.886C7.86399 114.618 8.74703 113.536 9.88516 112.641C11.0037 111.746 12.2988 111.107 13.7509 110.734L14.2807 113.015C13.1131 113.29 12.1026 113.762 11.2293 114.45C10.3365 115.119 9.63987 115.925 9.13948 116.889C8.6391 117.823 8.39381 118.826 8.39381 119.888C8.39381 121.392 8.8059 122.729 9.63987 123.919C10.4542 125.109 11.5825 126.033 13.0346 126.702C14.4868 127.37 16.1449 127.705 17.9895 127.705C19.834 127.705 21.4725 127.341 22.9443 126.613C24.3964 125.866 25.5443 124.843 26.3685 123.555C27.1828 122.248 27.5851 120.773 27.5851 119.15C27.5851 117.843 27.2613 116.623 26.6236 115.493C25.976 114.372 25.1028 113.438 24.0039 112.71C22.8854 111.963 21.6393 111.491 20.2657 111.304L20.825 109.023C22.5126 109.269 24.0235 109.878 25.3775 110.832C26.7315 111.766 27.7911 112.966 28.5564 114.421C29.3217 115.856 29.7142 117.43 29.7142 119.14H29.7044ZM29.7044 98.443C29.7044 100.065 29.3315 101.53 28.5859 102.819C27.8402 104.087 26.8002 105.08 25.4658 105.788C24.1118 106.496 22.6009 106.85 20.9133 106.85L7.01039 106.85L7.01039 104.48H20.9133C22.1397 104.48 23.2582 104.234 24.2786 103.733C25.299 103.231 26.1036 102.524 26.7119 101.609C27.2907 100.695 27.5851 99.6426 27.5851 98.4529C27.5851 97.2631 27.3006 96.2209 26.7413 95.3261C26.182 94.4117 25.3873 93.7038 24.3767 93.2023C23.3563 92.7009 22.1986 92.4551 20.8838 92.4551H7.01039V90.0854H20.9133C22.6009 90.0854 24.1118 90.4492 25.4658 91.1768C26.8002 91.8848 27.8304 92.8779 28.5859 94.1462C29.3315 95.4146 29.7044 96.8502 29.7044 98.4529V98.443ZM7.01039 86.644V84.2744H26.8394V73.7438H28.9587V86.644H7.01039ZM9.12967 69.8993V76.8705H7.01039L7.01039 60.5289H9.12967V67.5297H28.9587V69.8993H9.12967ZM29.7044 50.2441C29.7044 51.8665 29.3315 53.3217 28.5859 54.6196C27.8402 55.888 26.8002 56.8811 25.4658 57.589C24.1118 58.2969 22.6009 58.6509 20.9133 58.6509H7.01039V56.2714L20.9133 56.2714C22.1397 56.2714 23.2582 56.0256 24.2786 55.5242C25.299 55.0227 26.1036 54.3148 26.7119 53.4003C27.2907 52.4859 27.5851 51.4338 27.5851 50.2441C27.5851 49.0544 27.3006 48.0121 26.7413 47.1174C26.182 46.203 25.3873 45.495 24.3767 44.9936C23.3563 44.4921 22.1986 44.2463 20.8838 44.2463H7.01039V41.8668H20.9133C22.6009 41.8668 24.1118 42.2306 25.4658 42.9582C26.8002 43.6662 27.8304 44.6593 28.5859 45.9276C29.3315 47.196 29.7044 48.6316 29.7044 50.2343V50.2441ZM29.5474 23.3915C29.5474 23.9323 29.4395 24.4043 29.2334 24.7976C29.0274 25.1909 28.733 25.5154 28.3602 25.7612C27.9874 26.007 27.536 26.2135 27.016 26.3511L22.3752 27.6294C21.5216 27.8555 20.8348 28.2685 20.3148 28.8486C19.7948 29.4287 19.5397 30.117 19.5397 30.9134V36.0656H28.9489V38.4353H7.00057L7.00057 29.2812C7.00057 27.8653 7.2753 26.5969 7.81493 25.4662C8.35456 24.3158 9.10024 23.421 10.0618 22.7819C10.9939 22.133 12.0633 21.8183 13.2701 21.8183C14.2513 21.8183 15.1539 22.0445 15.9781 22.5066C16.8121 22.9687 17.5087 23.6079 18.0679 24.4436C18.6076 25.2597 18.9608 26.2036 19.1276 27.2852C19.4416 26.8034 19.8536 26.3904 20.3736 26.0365C20.8937 25.6825 21.4921 25.4269 22.179 25.2597L26.2311 24.1683C26.6432 24.0601 26.967 23.9225 27.1926 23.7357C27.4183 23.5292 27.536 23.2637 27.536 22.9589C27.536 22.6541 27.4183 22.3296 27.1926 22.0248C26.967 21.7102 26.6432 21.4349 26.2311 21.1792L27.6047 19.9895C28.2327 20.4025 28.7036 20.9039 29.0372 21.484C29.3708 22.0641 29.5376 22.7033 29.5376 23.3915H29.5474ZM17.4204 29.3304C17.4204 28.3766 17.2438 27.5015 16.8906 26.7051C16.5373 25.9087 16.0468 25.299 15.4286 24.8664C14.8007 24.4043 14.0943 24.1782 13.3094 24.1782C12.5244 24.1782 11.7788 24.4043 11.1606 24.8664C10.5131 25.299 10.0225 25.9185 9.6693 26.7051C9.31609 27.472 9.13948 28.3471 9.13948 29.3304V36.0755H17.4302V29.3304H17.4204ZM7.01039 10.9632V8.06267L28.9587 0L28.9587 2.49746L23.6311 4.40499V14.621L28.9587 16.5579V19.0554L7.01039 10.9632ZM21.5118 5.09327L9.29646 9.49821L21.5118 13.9622L21.5118 5.09327Z" fill="black"/><path d="M4.11774e-07 254.58L0 245.159H3.76006L3.76006 254.58H4.11774e-07Z" fill="black"/></svg>`;
-
 
     const SERVICES = {
       ag_digital: { label: 'Audioguía digital', order: 1 },
@@ -1115,7 +1039,7 @@
       heroData: '',
       logoData: '',
       logoTrimData: '',
-      logoBg: '#efefef',
+      logoBg: '#111111',
       clientName: '',
       services: new Set(),
       optionAServices: new Set(),
@@ -1224,42 +1148,6 @@
         : raw.replace(/\s*mes(?:es)?\s*$/i, '');
       return `${display} meses`;
     }
-
-    function getLogoBoxStyle() {
-      const ratio = Number(state.logoAspect) || 3;
-      let width = 44;
-      let shellRatio = 2.8;
-      let padBlock = 2.2;
-      let padInlineStart = 4.6;
-      let padInlineEnd = 5.4;
-
-      if (ratio >= 3.2) {
-        width = 46;
-        shellRatio = 3.2;
-      } else if (ratio >= 2.2) {
-        width = 44;
-        shellRatio = 2.6;
-      } else if (ratio >= 1.35) {
-        width = 39;
-        shellRatio = 1.8;
-        padBlock = 2.5;
-      } else if (ratio >= 0.9) {
-        width = 33;
-        shellRatio = 1.18;
-        padBlock = 2.8;
-        padInlineStart = 4.2;
-        padInlineEnd = 4.8;
-      } else {
-        width = 28;
-        shellRatio = 0.82;
-        padBlock = 3.1;
-        padInlineStart = 3.8;
-        padInlineEnd = 4.4;
-      }
-
-      return `background:${state.logoBg}; --logo-shell-width:${width}%; --logo-shell-ratio:${shellRatio} / 1; --logo-shell-pad-block:${padBlock}%; --logo-shell-pad-inline-start:${padInlineStart}%; --logo-shell-pad-inline-end:${padInlineEnd}%;`;
-    }
-
 
     function getDescriptionsForScope(scope) {
       return scope === 'B' ? state.optionBDescriptions : state.descriptions;
@@ -1468,24 +1356,22 @@
         ? `<img src="${state.heroData}" alt="Imagen del cliente">`
         : `<div class="hero-fallback">Fotografía del cliente</div>`;
       const activeLogoSrc = getActiveLogoSrc();
-      const logo = activeLogoSrc
-        ? `<div class="client-logo-fit"><img src="${activeLogoSrc}" alt="Logo del cliente"></div>`
-        : `<div class="client-logo-placeholder">Logo</div>`;
+      // Contenedor de logo (arriba-derecha): solo aparece si hay logo; fondo cambiable.
+      const logoBox = activeLogoSrc
+        ? `<div class="cover-logo-box" style="background:${escapeHTML(state.logoBg)}"><img src="${activeLogoSrc}" alt="Logo del cliente"></div>`
+        : '';
 
       return `
         <article class="page cover-page">
-          <div class="cover-bg-circle-b"></div>
-          <div class="cover-bg-circle-a"></div>
-          <div class="cover-kicker">Propuesta</div>
-          <div class="cover-text">
-            <h2 class="cover-title" data-bind="cover-title">${title}</h2>
-            <div class="cover-subtitle">${subtitle}</div>
-          </div>
-          <div class="cover-media">
-            <div class="hero-frame">${hero}</div>
-            <div class="client-logo-box" style="${getLogoBoxStyle()}">${logo}</div>
-            <div class="brand-svg-wrap">${COMPANY_SVG}</div>
-          </div>
+          <header class="cover-head">
+            <div class="cover-headings">
+              <h2 class="cover-title" data-bind="cover-title">${title}</h2>
+              <div class="cover-subtitle">${subtitle}</div>
+            </div>
+            ${logoBox}
+          </header>
+          <div class="cover-photo">${hero}</div>
+          <div class="cover-brand"><img src="assets/optima-wordmark.png" alt="ÓptimaCultura"></div>
         </article>
       `;
     }
@@ -1569,7 +1455,6 @@
       return budgetPageMarkup(label, items, state.price, state.priceNote, state.duration, 'A');
     }
 
-
     const VR_COMPOSITION_LAYOUTS = {
       intro: {
         base: 'assets/vr-page-10.png',
@@ -1618,7 +1503,6 @@
         entry.promise = null;
       });
     }
-
 
     let vrPrintPrepared = false;
     let vrPrintCleanup = [];
@@ -1850,7 +1734,6 @@
         </div>
       `;
     }
-
 
     function getPlaneLogoBox(aspect) {
       if (aspect < 0.72) return { x: 0.22, y: 0.08, w: 0.56, h: 0.80, compress: 1.0 };
@@ -2095,7 +1978,6 @@
       `;
     }
 
-
     function getCssProjectiveMatrix(quad, srcW, srcH) {
       const x0 = quad.tl.x, y0 = quad.tl.y;
       const x1 = quad.tr.x, y1 = quad.tr.y;
@@ -2275,7 +2157,6 @@
       renderPreview();
     }
 
-
     function sanitizeFilenamePart(value) {
       const cleaned = String(value || '').trim().toLowerCase()
         .normalize('NFD').replace(/[̀-ͯ]/g, '')
@@ -2335,7 +2216,7 @@
       return {
         heroData: '',
         logoData: '',
-        logoBg: '#efefef',
+        logoBg: '#111111',
         clientName: '',
         services: [],
         optionAServices: [],
@@ -2377,7 +2258,7 @@
       state.logoData = d.logoData || '';
       state.logoTrimData = '';
       state.logoBgRemovedData = '';
-      state.logoBg = d.logoBg || '#efefef';
+      state.logoBg = d.logoBg || '#111111';
       state.clientName = d.clientName || '';
       state.services = new Set(Array.isArray(d.services) ? d.services : []);
       state.optionAServices = new Set(Array.isArray(d.optionAServices) ? d.optionAServices : []);
@@ -2523,7 +2404,6 @@
       renderText();
     });
 
-
     els.priceInput.addEventListener('input', (ev) => {
       state.price = ev.target.value;
       renderText();
@@ -2549,7 +2429,6 @@
       }
       renderAll();
     });
-
 
     els.optionBPriceInput.addEventListener('input', (ev) => {
       state.optionBPrice = ev.target.value;
