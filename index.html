@@ -848,22 +848,41 @@
         <div class="service-group">
           <div class="service-group-title">OptimaGuia</div>
           <div class="check-grid">
+            <label class="check-item"><input type="checkbox" data-service="ag_pater_roma"><span>Pater Roma (infantil)</span></label>
             <label class="check-item"><input type="checkbox" data-service="ag_digital"><span>Audioguía digital</span></label>
             <label class="check-item"><input type="checkbox" data-service="ag_clasica"><span>Audioguía clásica</span></label>
-            <label class="check-item"><input type="checkbox" data-service="ag_grupos"><span>Audioguía de grupos</span></label>
+            <label class="check-item"><input type="checkbox" data-service="ag_grupos"><span>Guiado de grupos</span></label>
           </div>
         </div>
         <div class="service-group">
           <div class="service-group-title">OptimaTicket</div>
           <div class="check-grid">
             <label class="check-item"><input type="checkbox" data-service="ot_venta_asistida"><span>Gestión de venta de entradas</span></label>
-            <label class="check-item"><input type="checkbox" data-service="ot_ticketpoint"><span>Ticketpoint</span></label>
+            <label class="check-item"><input type="checkbox" data-service="ot_ticketpoint"><span>Ticketpoints</span></label>
           </div>
         </div>
         <div class="service-group">
           <div class="service-group-title">Experiencias immersivas VR</div>
           <div class="check-grid">
-            <label class="check-item"><input type="checkbox" data-service="vr_estaciones"><span>OptimaVR</span></label>
+            <label class="check-item"><input type="checkbox" data-service="vr_estaciones"><span>OptimaVR (estaciones + contenidos 3D)</span></label>
+          </div>
+        </div>
+        <div class="service-group">
+          <div class="service-group-title">Contenidos audiovisuales</div>
+          <div class="check-grid">
+            <label class="check-item"><input type="checkbox" data-service="videomapping"><span>Videomapping</span></label>
+          </div>
+        </div>
+        <div class="service-group">
+          <div class="service-group-title">OptimaCrea</div>
+          <div class="check-grid">
+            <label class="check-item"><input type="checkbox" data-service="diseno_grafico_web"><span>Diseño gráfico y web</span></label>
+          </div>
+        </div>
+        <div class="service-group">
+          <div class="service-group-title">OptimaEditorial</div>
+          <div class="check-grid">
+            <label class="check-item"><input type="checkbox" data-service="diseno_editorial"><span>Diseño editorial</span></label>
           </div>
         </div>
       </section>
@@ -1024,15 +1043,19 @@
   <script>
 
     const SERVICES = {
-      ag_digital: { label: 'Audioguía digital', order: 1 },
-      ag_clasica: { label: 'Audioguía clásica', order: 2 },
-      ag_grupos: { label: 'Audioguía de grupos', order: 3 },
-      ot_venta_asistida: { label: 'Gestión de venta de entradas', order: 4 },
-      ot_ticketpoint: { label: 'Ticketpoint', order: 5 },
-      vr_estaciones: { label: 'Experiencias immersivas VR', order: 6 }
+      ag_pater_roma: { label: 'Pater Roma (audioguía infantil)' },
+      ag_digital: { label: 'Audioguía digital' },
+      ag_clasica: { label: 'Audioguía clásica' },
+      ag_grupos: { label: 'Guiado de grupos' },
+      ot_venta_asistida: { label: 'Gestión de venta de entradas' },
+      ot_ticketpoint: { label: 'Ticketpoints' },
+      vr_estaciones: { label: 'Experiencias immersivas VR' },
+      videomapping: { label: 'Videomapping' },
+      diseno_grafico_web: { label: 'Diseño gráfico y web' },
+      diseno_editorial: { label: 'Diseño editorial' }
     };
 
-    const AUDIO_KEYS = ['ag_digital', 'ag_clasica', 'ag_grupos'];
+    const AUDIO_KEYS = ['ag_pater_roma', 'ag_digital', 'ag_clasica', 'ag_grupos'];
     const TICKETING_KEYS = ['ot_venta_asistida', 'ot_ticketpoint'];
 
     const state = {
@@ -1178,20 +1201,31 @@
       if (serviceSet.has('vr_estaciones')) {
         items.push({ id: 'experiencias_vr_group', label: 'Experiencias immersivas VR' });
       }
+      if (serviceSet.has('videomapping')) {
+        items.push({ id: 'videomapping', label: SERVICES.videomapping.label });
+      }
+      if (serviceSet.has('diseno_grafico_web')) {
+        items.push({ id: 'diseno_grafico_web', label: SERVICES.diseno_grafico_web.label });
+      }
+      if (serviceSet.has('diseno_editorial')) {
+        items.push({ id: 'diseno_editorial', label: SERVICES.diseno_editorial.label });
+      }
 
-      return items.sort((a, b) => {
-        const orderMap = {
-          optimaguia_group: 0,
-          ag_digital: 1,
-          ag_clasica: 2,
-          ag_grupos: 3,
-          optimaticket_group: 4,
-          ot_venta_asistida: 5,
-          ot_ticketpoint: 6,
-          experiencias_vr_group: 7
-        };
-        return (orderMap[a.id] || 99) - (orderMap[b.id] || 99);
-      });
+      const orderMap = {
+        optimaguia_group: 0,
+        ag_pater_roma: 1,
+        ag_digital: 2,
+        ag_clasica: 3,
+        ag_grupos: 4,
+        optimaticket_group: 5,
+        ot_venta_asistida: 6,
+        ot_ticketpoint: 7,
+        experiencias_vr_group: 8,
+        videomapping: 9,
+        diseno_grafico_web: 10,
+        diseno_editorial: 11
+      };
+      return items.sort((a, b) => (orderMap[a.id] ?? 99) - (orderMap[b.id] ?? 99));
     }
 
     function getBudgetItems() {
@@ -1255,36 +1289,51 @@
     }
 
     function buildSequence() {
+      const has = (key) => state.services.has(key);
       const sequence = [{ type: 'cover', label: 'Portada dinámica' }];
-      const hasAudio = AUDIO_KEYS.some((key) => state.services.has(key));
-      const hasTicketing = TICKETING_KEYS.some((key) => state.services.has(key));
 
-      if (hasAudio) sequence.push({ type: 'static', page: 2, label: 'OptimaGuia - intro' });
-      if (state.services.has('ag_digital')) sequence.push({ type: 'static', page: 3, label: 'Audioguía digital' });
-      if (state.services.has('ag_clasica')) sequence.push({ type: 'static', page: 4, label: 'Audioguía clásica' });
-      if (state.services.has('ag_grupos')) sequence.push({ type: 'static', page: 5, label: 'Audioguía de grupos' });
+      // Introducción corporativa (siempre)
+      sequence.push({ type: 'static', page: '2', label: 'Introducción a ÓptimaCultura' });
+      sequence.push({ type: 'static', page: '3', label: 'ÓptimaCultura en cifras' });
+      sequence.push({ type: 'static', page: '4', label: 'Casos de éxito' });
 
-      if (hasTicketing) sequence.push({ type: 'static', page: 6, label: 'OptimaTicket - intro' });
-      if (state.services.has('ot_venta_asistida')) {
-        sequence.push({ type: 'static', page: 7, label: 'Gestión de venta de entradas 1/3' });
-        sequence.push({ type: 'static', page: 8, label: 'Gestión de venta de entradas 2/3' });
-        sequence.push({ type: 'static', page: 9, label: 'Gestión de venta de entradas 3/3' });
+      // Audioguías
+      if (AUDIO_KEYS.some(has)) sequence.push({ type: 'static', page: '5', label: 'Audioguías · intro' });
+      if (has('ag_pater_roma')) sequence.push({ type: 'static', page: '6', label: 'Pater Roma' });
+      if (has('ag_digital')) sequence.push({ type: 'static', page: '7', label: 'Audioguía digital' });
+      if (has('ag_clasica')) sequence.push({ type: 'static', page: '8', label: 'Audioguía clásica' });
+      if (has('ag_grupos')) sequence.push({ type: 'static', page: '9', label: 'Guiado de grupos' });
+
+      // OptimaTicket
+      if (TICKETING_KEYS.some(has)) sequence.push({ type: 'static', page: '10', label: 'OptimaTicket · intro' });
+      if (has('ot_venta_asistida')) {
+        sequence.push({ type: 'static', page: '11', label: 'Compra online' });
+        sequence.push({ type: 'static', page: '12', label: 'Plataforma de gestión' });
+        sequence.push({ type: 'static', page: '13', label: 'Venta asistida (TPV)' });
       }
-      if (state.services.has('ot_ticketpoint')) sequence.push({ type: 'static', page: 10, label: 'Ticketpoint' });
+      if (has('ot_ticketpoint')) sequence.push({ type: 'static', page: '14', label: 'Ticketpoints' });
 
-      if (state.services.has('vr_estaciones')) {
-        sequence.push({ type: 'vr', page: 'intro', label: 'Experiencias immersivas VR' });
-        sequence.push({ type: 'vr', page: 'tech', label: 'Características técnicas' });
-        sequence.push({ type: 'vr', page: 'station', label: 'Características de la estación' });
-        sequence.push({ type: 'vr', page: 'headset', label: 'Gafas de realidad virtual' });
+      // Realidad Virtual (incluye modelado 3D y creación de contenidos)
+      if (has('vr_estaciones')) {
+        sequence.push({ type: 'vr', label: 'Experiencias VR · estación' });
+        sequence.push({ type: 'static', page: '16', label: 'Gafas / Estación VR 360°' });
+        sequence.push({ type: 'static', page: '17', label: 'Características técnicas' });
+        sequence.push({ type: 'static', page: '18', label: 'Modelado y entornos 3D (CGI)' });
+        sequence.push({ type: 'static', page: '19', label: 'Creación de contenidos audiovisuales' });
       }
 
-      sequence.push({ type: 'static', page: 14, label: 'Servicio técnico y soporte' });
+      // Servicios nuevos
+      if (has('videomapping')) sequence.push({ type: 'static', page: '20', label: 'Videomapping' });
+      if (has('diseno_grafico_web')) sequence.push({ type: 'static', page: '21', label: 'Diseño gráfico y web' });
+      if (has('diseno_editorial')) sequence.push({ type: 'static', page: '22', label: 'Diseño editorial' });
+
+      // Cierre
+      sequence.push({ type: 'static', page: '23', label: 'Servicio técnico y soporte' });
       sequence.push({ type: 'budgetA', label: state.optionBEnabled ? 'Oferta económica · opción A' : 'Oferta económica' });
       if (state.optionBEnabled) {
         sequence.push({ type: 'budgetB', label: 'Oferta económica · opción B' });
       }
-      sequence.push({ type: 'static', page: 16, label: 'Cierre corporativo' });
+      sequence.push({ type: 'static', page: '24', label: 'Cierre corporativo' });
       return sequence;
     }
 
@@ -1953,27 +2002,23 @@
       return 'assets/vr-page-12.png';
     }
 
-    function vrMarkup(kind) {
-      const labels = {
-        intro: 'Experiencias immersivas VR',
-        tech: 'Características técnicas',
-        station: 'Características de la estación',
-        headset: 'Gafas de realidad virtual'
-      };
-      const src = getVrPageSrc(kind);
-      const layer = (kind === 'intro' || kind === 'station') ? getVrMockupLayerMarkup(kind) : '';
+    // Página de estación VR (15A/15B).
+    // Bloque D añadirá: si hay logo del cliente -> 15B + composición de la estación
+    // con el logo warpeado sobre la cara negra. Por ahora se usa siempre 15A
+    // (estación por defecto de ÓptimaCultura) hasta tener el PNG de la estación.
+    function vrStationMarkup() {
+      const src = 'assets/pages/15A.webp';
       return `
-        <article class="page vr-custom-page vr-${kind}-page">
-          <img class="vr-bg-image" src="${src}" alt="${labels[kind] || 'Página VR'}">
-          ${layer}
+        <article class="page static-page">
+          <img src="${src}" alt="Experiencias immersivas VR">
         </article>
       `;
     }
 
-    function staticMarkup(pageNumber) {
+    function staticMarkup(page) {
       return `
         <article class="page static-page">
-          <img src="assets/page-${String(pageNumber).padStart(2, '0')}.png" alt="Plantilla página ${pageNumber}">
+          <img src="assets/pages/${page}.webp" alt="Página ${page}">
         </article>
       `;
     }
@@ -2111,7 +2156,7 @@
             : entry.type === 'budgetB'
               ? budgetMarkup('B')
               : entry.type === 'vr'
-                ? vrMarkup(entry.page)
+                ? vrStationMarkup()
                 : staticMarkup(entry.page);
         return `
           <section class="page-shell">
