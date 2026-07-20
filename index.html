@@ -378,32 +378,6 @@
     .price-card .stack.stack-two-rows { display: grid; grid-template-columns: 1fr; gap: 10px; }
     .price-note-input, #priceNoteInput, #optionBPriceNoteInput { min-height: 48px; }
 
-    .vr-custom-page { background: #f2f2f2; }
-    .vr-bg-image { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
-    .vr-stage { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
-    .vr-mockup-layer { position: absolute; pointer-events: none; }
-    .vr-mockup-img { display: block; width: 100%; height: auto; }
-    .vr-logo-projector {
-      position: absolute;
-      left: 0;
-      top: 0;
-      transform-origin: 0 0;
-      pointer-events: none;
-      will-change: transform;
-      overflow: hidden;
-    }
-    .vr-logo-projector img {
-      display: block;
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      object-position: center center;
-      image-rendering: auto;
-    }
-    .vr-logo-projector.is-hidden { display: none; }
-    .vr-stage.is-print-hidden { display: none !important; }
-    .vr-print-canvas { position:absolute; inset:0; width:100%; height:100%; display:block; }
-
     .logo-tool-row {
       display: flex;
       gap: 10px;
@@ -1504,32 +1478,24 @@
       return budgetPageMarkup(label, items, state.price, state.priceNote, state.duration, 'A');
     }
 
-    const VR_COMPOSITION_LAYOUTS = {
-      intro: {
-        base: 'assets/vr-page-10.png',
-        x: 0,
-        y: 720,
-        width: 1438
-      },
-      station: {
-        base: 'assets/vr-page-12.png',
-        x: 230,
-        y: 1200,
-        width: 1192
-      }
+    // --- Estación VR (bloque D) ---
+    // Página VR con logo del cliente: sobre la 15B (sin estación) se compone la
+    // estación y se warpea el logo del cliente sobre el panel frontal-derecho
+    // con perspectiva y modo multiply (efecto "impreso"). Sin logo -> 15A.
+    const VR_PAGE_W = 1190;
+    const VR_PAGE_H = 1684;
+    const VR_STATION_SRC = 'assets/pages/estacion.png';
+    const VR_STATION_BG = 'assets/pages/15B.webp';
+    // Colocación de la estación dentro de la página (px sobre 1190x1684).
+    const VR_STATION_PLACEMENT = { x: 120, y: 150, w: 980 };
+    // Cuadrilátero del panel donde va el logo, en FRACCIONES de la imagen de estación.
+    const VR_STATION_QUAD = {
+      tl: { x: 0.5960, y: 0.5516 },
+      tr: { x: 0.7620, y: 0.5936 },
+      br: { x: 0.7614, y: 0.6871 },
+      bl: { x: 0.5958, y: 0.7871 }
     };
-    const VR_MOCKUP_SRC = 'assets/vr-station-mockup-noshadow-true.png';
-    const VR_MOCKUP_SIZE = { width: 2048, height: 1447 };
-    const VR_FRONT_QUAD = {
-      tl: { x: 1228, y: 733 },
-      tr: { x: 1656, y: 544 },
-      br: { x: 1610, y: 988 },
-      bl: { x: 1229, y: 1225 }
-    };
-    const vrCompositeCache = {
-      intro: { version: -1, url: '', promise: null },
-      station: { version: -1, url: '', promise: null }
-    };
+    const vrStationCache = { version: -1, url: '', promise: null };
     const imagePromiseCache = new Map();
 
     function loadImageCached(src) {
@@ -1546,97 +1512,14 @@
     }
 
     function resetVrComposites() {
-      Object.values(vrCompositeCache).forEach((entry) => {
-        entry.version = -1;
-        entry.url = '';
-        entry.promise = null;
-      });
+      vrStationCache.version = -1;
+      vrStationCache.url = '';
+      vrStationCache.promise = null;
     }
 
-    let vrPrintPrepared = false;
-    let vrPrintCleanup = [];
-
-    function restoreVrPrintAssets() {
-      if (!vrPrintCleanup.length) {
-        vrPrintPrepared = false;
-        return;
-      }
-      vrPrintCleanup.forEach((fn) => {
-        try { fn(); } catch (e) {}
-      });
-      vrPrintCleanup = [];
-      vrPrintPrepared = false;
-    }
-
-    function waitForImageElement(img) {
-      if (!img) return Promise.resolve();
-      if (img.complete && (img.naturalWidth || img.width)) {
-        if (typeof img.decode === 'function') {
-          return img.decode().catch(() => {});
-        }
-        return Promise.resolve();
-      }
-      return new Promise((resolve) => {
-        const cleanup = () => {
-          img.removeEventListener('load', onDone);
-          img.removeEventListener('error', onDone);
-        };
-        const onDone = () => {
-          cleanup();
-          resolve();
-        };
-        img.addEventListener('load', onDone, { once: true });
-        img.addEventListener('error', onDone, { once: true });
-      });
-    }
-
-    function cloneCanvas(source) {
-      const canvas = document.createElement('canvas');
-      canvas.width = source.width;
-      canvas.height = source.height;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(source, 0, 0);
-      return canvas;
-    }
-
-    async function applyVrPrintCompositeToDom(kind, canvas) {
-      const selector = kind === 'intro' ? '.vr-intro-page' : '.vr-station-page';
-      document.querySelectorAll(selector).forEach((page) => {
-        const originalHTML = page.innerHTML;
-        page.innerHTML = '';
-        const printCanvas = cloneCanvas(canvas);
-        printCanvas.className = 'vr-print-canvas';
-        page.appendChild(printCanvas);
-        vrPrintCleanup.push(() => {
-          page.innerHTML = originalHTML;
-          try { applyVrPerspectiveOverlays(); } catch (e) {}
-        });
-      });
-      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-    }
-
-    async function prepareVrPrintAssets() {
-      restoreVrPrintAssets();
-      const sequence = buildSequence();
-      const needsIntro = sequence.some((entry) => entry.type === 'vr' && entry.page === 'intro');
-      const needsStation = sequence.some((entry) => entry.type === 'vr' && entry.page === 'station');
-      const jobs = [];
-      if (needsIntro) jobs.push(composeVrPageCanvas('intro').then((canvas) => ['intro', canvas]));
-      if (needsStation) jobs.push(composeVrPageCanvas('station').then((canvas) => ['station', canvas]));
-      const results = await Promise.all(jobs);
-      for (const [kind, canvas] of results) {
-        if (canvas) {
-          await applyVrPrintCompositeToDom(kind, canvas);
-        }
-      }
-      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-      vrPrintPrepared = true;
-    }
-
+    // Precalienta la composición de la estación VR cuando procede (hay logo).
     function warmVrComposites() {
-      const sequence = buildSequence();
-      if (sequence.some((entry) => entry.type === 'vr' && entry.page === 'intro')) ensureVrComposite('intro');
-      if (sequence.some((entry) => entry.type === 'vr' && entry.page === 'station')) ensureVrComposite('station');
+      if (getVrLogoSrc() && buildSequence().some((entry) => entry.type === 'vr')) ensureVrStation();
     }
 
     async function trimLogoDataURL(src) {
@@ -1762,36 +1645,6 @@
       return out.toDataURL('image/png');
     }
 
-    function getVrMockupLayerStyle(kind) {
-      if (kind === 'intro') return 'left:-0.15%;top:34.85%;width:100.3%;';
-      if (kind === 'station') return 'left:14.25%;top:58.15%;width:84.4%;';
-      return '';
-    }
-
-    function getVrMockupLayerMarkup(kind) {
-      const layerStyle = getVrMockupLayerStyle(kind);
-      if (!layerStyle) return '';
-      const logoSrc = getVrLogoSrc();
-      return `
-        <div class="vr-stage">
-          <div class="vr-mockup-layer" data-vr-kind="${kind}" style="${layerStyle}">
-            <img class="vr-mockup-img" src="${VR_MOCKUP_SRC}" alt="Estación VR">
-            <div class="vr-logo-projector ${logoSrc ? '' : 'is-hidden'} " data-vr-logo style="width:1000px;height:${Math.round(1000 / Math.max(0.35, state.logoAspect || 1.6))}px;">
-              ${logoSrc ? `<img src="${logoSrc}" alt="Logo del cliente en estación VR">` : ''}
-            </div>
-          </div>
-        </div>
-      `;
-    }
-
-    function getPlaneLogoBox(aspect) {
-      if (aspect < 0.72) return { x: 0.22, y: 0.08, w: 0.56, h: 0.80, compress: 1.0 };
-      if (aspect < 1.12) return { x: 0.18, y: 0.14, w: 0.64, h: 0.66, compress: 1.0 };
-      if (aspect < 1.95) return { x: 0.12, y: 0.24, w: 0.76, h: 0.40, compress: 0.96 };
-      if (aspect < 3.2) return { x: 0.10, y: 0.36, w: 0.80, h: 0.25, compress: 0.96 };
-      return { x: 0.08, y: 0.39, w: 0.84, h: 0.23, compress: 0.97 };
-    }
-
     function lerpPoint(a, b, t) {
       return { x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t };
     }
@@ -1802,25 +1655,25 @@
       return lerpPoint(top, bottom, v);
     }
 
-    function scaleQuad(quad, scale, offsetX, offsetY) {
+    // Cuadrilátero interior que preserva el aspecto del logo, centrado en el panel.
+    function fitLogoQuad(panelQuad, logoAspect) {
+      const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
+      const quadW = (dist(panelQuad.tl, panelQuad.tr) + dist(panelQuad.bl, panelQuad.br)) / 2;
+      const quadH = (dist(panelQuad.tl, panelQuad.bl) + dist(panelQuad.tr, panelQuad.br)) / 2;
+      const quadAspect = quadW / Math.max(1, quadH);
+      let u0 = 0, u1 = 1, v0 = 0, v1 = 1;
+      if (logoAspect > quadAspect) {
+        const vh = quadAspect / logoAspect; // el logo es más ancho -> ajusta al ancho
+        v0 = (1 - vh) / 2; v1 = v0 + vh;
+      } else {
+        const uw = logoAspect / quadAspect; // el logo es más alto -> ajusta al alto
+        u0 = (1 - uw) / 2; u1 = u0 + uw;
+      }
       return {
-        tl: { x: offsetX + quad.tl.x * scale, y: offsetY + quad.tl.y * scale },
-        tr: { x: offsetX + quad.tr.x * scale, y: offsetY + quad.tr.y * scale },
-        br: { x: offsetX + quad.br.x * scale, y: offsetY + quad.br.y * scale },
-        bl: { x: offsetX + quad.bl.x * scale, y: offsetY + quad.bl.y * scale }
-      };
-    }
-
-    function getInnerLogoQuad(planeQuad, aspect) {
-      const box = getPlaneLogoBox(aspect);
-      const widthCompression = box.compress || 1.0;
-      const compressedWidth = box.w * widthCompression;
-      const offsetX = box.x + (box.w - compressedWidth) / 2;
-      return {
-        tl: quadPoint(planeQuad, offsetX, box.y),
-        tr: quadPoint(planeQuad, offsetX + compressedWidth, box.y),
-        br: quadPoint(planeQuad, offsetX + compressedWidth, box.y + box.h),
-        bl: quadPoint(planeQuad, offsetX, box.y + box.h)
+        tl: quadPoint(panelQuad, u0, v0),
+        tr: quadPoint(panelQuad, u1, v0),
+        br: quadPoint(panelQuad, u1, v1),
+        bl: quadPoint(panelQuad, u0, v1)
       };
     }
 
@@ -1934,52 +1787,61 @@
       );
     }
 
-    async function drawLogoOnMockup(ctx, logoImg, layout) {
-      const scale = layout.width / VR_MOCKUP_SIZE.width;
-      const planeQuad = scaleQuad(VR_FRONT_QUAD, scale, layout.x, layout.y);
-      const preparedLogo = await buildPreparedLogoImage(logoImg);
-      const aspect = (preparedLogo.naturalWidth || preparedLogo.width) / Math.max(1, (preparedLogo.naturalHeight || preparedLogo.height));
-      const innerQuad = getInnerLogoQuad(planeQuad, aspect);
-      ctx.imageSmoothingEnabled = true;
-      ctx.imageSmoothingQuality = 'high';
-      warpImageToQuad(ctx, preparedLogo, innerQuad);
-    }
-
-    async function composeVrPageCanvas(kind) {
-      const layout = VR_COMPOSITION_LAYOUTS[kind];
-      const [bgImg, mockupImg, logoImg] = await Promise.all([
-        loadImageCached(layout.base),
-        loadImageCached(VR_MOCKUP_SRC),
-        getVrLogoSrc() ? loadImageCached(getVrLogoSrc()) : Promise.resolve(null)
+    // Compone la página de estación VR con el logo del cliente:
+    // 15B (sin estación) + estación + logo warpeado sobre el panel (perspectiva + multiply).
+    async function composeVrStationCanvas() {
+      const logoSrc = getVrLogoSrc();
+      const [bgImg, stationImg, logoImg] = await Promise.all([
+        loadImageCached(VR_STATION_BG),
+        loadImageCached(VR_STATION_SRC),
+        logoSrc ? loadImageCached(logoSrc) : Promise.resolve(null)
       ]);
 
       const canvas = document.createElement('canvas');
-      canvas.width = bgImg.naturalWidth || bgImg.width;
-      canvas.height = bgImg.naturalHeight || bgImg.height;
+      canvas.width = VR_PAGE_W;
+      canvas.height = VR_PAGE_H;
       const ctx = canvas.getContext('2d');
-      ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
 
-      const mockupHeight = Math.round(layout.width * (mockupImg.naturalHeight || mockupImg.height) / (mockupImg.naturalWidth || mockupImg.width));
-      ctx.drawImage(mockupImg, layout.x, layout.y, layout.width, mockupHeight);
-      if (logoImg && getVrLogoSrc()) {
-        await drawLogoOnMockup(ctx, logoImg, layout);
+      // Fondo: página 15B (sin estación)
+      ctx.drawImage(bgImg, 0, 0, VR_PAGE_W, VR_PAGE_H);
+
+      // Estación colocada en la página
+      const sw = stationImg.naturalWidth || stationImg.width;
+      const sh = stationImg.naturalHeight || stationImg.height;
+      const pl = VR_STATION_PLACEMENT;
+      const drawW = pl.w;
+      const drawH = pl.w * sh / sw;
+      ctx.drawImage(stationImg, pl.x, pl.y, drawW, drawH);
+
+      // Logo del cliente sobre el panel frontal-derecho (perspectiva + multiply)
+      if (logoImg) {
+        const prepared = await buildPreparedLogoImage(logoImg);
+        const aspect = (prepared.naturalWidth || prepared.width) / Math.max(1, (prepared.naturalHeight || prepared.height));
+        const toPage = (f) => ({ x: pl.x + f.x * drawW, y: pl.y + f.y * drawH });
+        const panelQuad = {
+          tl: toPage(VR_STATION_QUAD.tl), tr: toPage(VR_STATION_QUAD.tr),
+          br: toPage(VR_STATION_QUAD.br), bl: toPage(VR_STATION_QUAD.bl)
+        };
+        const innerQuad = fitLogoQuad(panelQuad, aspect);
+        ctx.save();
+        ctx.globalCompositeOperation = 'multiply';
+        warpImageToQuad(ctx, prepared, innerQuad);
+        ctx.restore();
       }
       return canvas;
     }
 
-    async function composeVrPage(kind) {
-      const canvas = await composeVrPageCanvas(kind);
-      return canvas.toDataURL('image/png');
-    }
-
-    function ensureVrComposite(kind) {
-      const entry = vrCompositeCache[kind];
+    function ensureVrStation() {
+      const entry = vrStationCache;
       if (entry.version === state.logoVersion && entry.url) return Promise.resolve(entry.url);
       if (entry.version === state.logoVersion && entry.promise) return entry.promise;
       const currentVersion = state.logoVersion;
       entry.version = currentVersion;
-      entry.promise = composeVrPage(kind)
-        .then((url) => {
+      entry.promise = composeVrStationCanvas()
+        .then((canvas) => {
+          const url = canvas.toDataURL('image/png');
           if (entry.version === currentVersion) {
             entry.url = url;
             entry.promise = null;
@@ -1988,31 +1850,26 @@
           return url;
         })
         .catch((error) => {
-          console.error('No se pudo componer la página VR', kind, error);
+          console.error('No se pudo componer la estación VR', error);
           if (entry.version === currentVersion) entry.promise = null;
           return '';
         });
       return entry.promise;
     }
 
-    function getVrPageSrc(kind) {
-      if (kind === 'tech') return 'assets/vr-page-11.png';
-      if (kind === 'headset') return 'assets/vr-page-13.png';
-      if (kind === 'intro') return 'assets/vr-page-10.png';
-      return 'assets/vr-page-12.png';
-    }
-
-    // Página de estación VR (15A/15B).
-    // Bloque D añadirá: si hay logo del cliente -> 15B + composición de la estación
-    // con el logo warpeado sobre la cara negra. Por ahora se usa siempre 15A
-    // (estación por defecto de ÓptimaCultura) hasta tener el PNG de la estación.
+    // Página de estación VR:
+    //  - sin logo del cliente -> 15A (estación por defecto de ÓptimaCultura).
+    //  - con logo -> 15B + estación con el logo del cliente (compuesto async, cacheado).
     function vrStationMarkup() {
-      const src = 'assets/pages/15A.webp';
-      return `
-        <article class="page static-page">
-          <img src="${src}" alt="Experiencias immersivas VR">
-        </article>
-      `;
+      if (!getVrLogoSrc()) {
+        return `<article class="page static-page"><img src="assets/pages/15A.webp" alt="Experiencias immersivas VR"></article>`;
+      }
+      const entry = vrStationCache;
+      if (entry.version === state.logoVersion && entry.url) {
+        return `<article class="page static-page"><img src="${entry.url}" alt="Experiencias immersivas VR"></article>`;
+      }
+      ensureVrStation();
+      return `<article class="page static-page"><img src="assets/pages/15B.webp" alt="Experiencias immersivas VR"></article>`;
     }
 
     function staticMarkup(page) {
@@ -2021,47 +1878,6 @@
           <img src="assets/pages/${page}.webp" alt="Página ${page}">
         </article>
       `;
-    }
-
-    function getCssProjectiveMatrix(quad, srcW, srcH) {
-      const x0 = quad.tl.x, y0 = quad.tl.y;
-      const x1 = quad.tr.x, y1 = quad.tr.y;
-      const x2 = quad.bl.x, y2 = quad.bl.y;
-      const x3 = quad.br.x, y3 = quad.br.y;
-
-      const dx1 = x1 - x3;
-      const dx2 = x2 - x3;
-      const dx3 = x0 - x1 - x2 + x3;
-      const dy1 = y1 - y3;
-      const dy2 = y2 - y3;
-      const dy3 = y0 - y1 - y2 + y3;
-
-      let a, b, c, d, e, f, g, h;
-      const det = dx1 * dy2 - dx2 * dy1;
-      if (Math.abs(dx3) < 1e-6 && Math.abs(dy3) < 1e-6 || Math.abs(det) < 1e-6) {
-        a = x1 - x0; d = x2 - x0; g = x0;
-        b = y1 - y0; e = y2 - y0; h = y0;
-        c = 0; f = 0;
-      } else {
-        c = (dx3 * dy2 - dx2 * dy3) / det;
-        f = (dx1 * dy3 - dx3 * dy1) / det;
-        a = x1 - x0 + c * x1;
-        d = x2 - x0 + f * x2;
-        g = x0;
-        b = y1 - y0 + c * y1;
-        e = y2 - y0 + f * y2;
-        h = y0;
-      }
-
-      const m11 = a / srcW;
-      const m12 = b / srcW;
-      const m21 = d / srcH;
-      const m22 = e / srcH;
-      const m14 = c / srcW;
-      const m24 = f / srcH;
-      const m41 = g;
-      const m42 = h;
-      return `matrix3d(${m11},${m12},0,${m14},${m21},${m22},0,${m24},0,0,1,0,${m41},${m42},0,1)`;
     }
 
     function getActiveLogoSrc() {
@@ -2082,45 +1898,6 @@
       els.logoRemoveBgBtn.textContent = `Eliminar fondo: ${active ? 'activado' : 'desactivado'}`;
       els.logoRemoveBgBtn.classList.toggle('is-active', active);
       els.logoRemoveBgBtn.setAttribute('aria-pressed', active ? 'true' : 'false');
-    }
-
-    function applyVrPerspectiveOverlays() {
-      const logoSrc = getVrLogoSrc();
-      document.querySelectorAll('.vr-mockup-layer[data-vr-kind]').forEach((layer) => {
-        const kind = layer.dataset.vrKind;
-        const projector = layer.querySelector('[data-vr-logo]');
-        if (!projector) return;
-        if (!logoSrc) {
-          projector.classList.add('is-hidden');
-            projector.innerHTML = '';
-          projector.style.transform = 'none';
-          return;
-        }
-        const srcW = 1000;
-        const srcH = Math.max(260, Math.round(1000 / Math.max(0.35, state.logoAspect || 1.6)));
-        projector.classList.remove('is-hidden');
-        if (!projector.querySelector('img') || projector.querySelector('img').getAttribute('src') !== logoSrc) {
-          projector.innerHTML = `<img src="${logoSrc}" alt="Logo del cliente en estación VR">`;
-        }
-        projector.style.width = `${srcW}px`;
-        projector.style.height = `${srcH}px`;
-
-        const rect = layer.getBoundingClientRect();
-        const scaleX = rect.width / VR_MOCKUP_SIZE.width;
-        const scaleY = rect.height / VR_MOCKUP_SIZE.height;
-        const planeQuad = {
-          tl: { x: VR_FRONT_QUAD.tl.x * scaleX, y: VR_FRONT_QUAD.tl.y * scaleY },
-          tr: { x: VR_FRONT_QUAD.tr.x * scaleX, y: VR_FRONT_QUAD.tr.y * scaleY },
-          br: { x: VR_FRONT_QUAD.br.x * scaleX, y: VR_FRONT_QUAD.br.y * scaleY },
-          bl: { x: VR_FRONT_QUAD.bl.x * scaleX, y: VR_FRONT_QUAD.bl.y * scaleY }
-        };
-        const innerQuad = getInnerLogoQuad(planeQuad, state.logoAspect || 1.6);
-        projector.style.transform = getCssProjectiveMatrix(innerQuad, srcW, srcH);
-      });
-    }
-
-    function scheduleVrPerspectiveOverlays() {
-      requestAnimationFrame(() => requestAnimationFrame(applyVrPerspectiveOverlays));
     }
 
     function updateClientDataPreview() {
@@ -2168,7 +1945,6 @@
           </section>
         `;
       }).join('');
-      scheduleVrPerspectiveOverlays();
       warmVrComposites();
     }
 
@@ -2523,7 +2299,10 @@
       const previousText = btn.textContent;
       btn.textContent = 'Preparando exportación...';
       try {
-        await prepareVrPrintAssets();
+        // Asegura que la composición de la estación VR (con logo) esté lista antes de imprimir.
+        if (getVrLogoSrc() && buildSequence().some((entry) => entry.type === 'vr')) {
+          await ensureVrStation();
+        }
         requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
       } finally {
         btn.disabled = false;
@@ -2835,11 +2614,6 @@
     });
     els.exampleBtn.addEventListener('click', () => { loadExample(); setCurrentProposal(null); });
     els.resetBtn.addEventListener('click', () => { resetAll(); setCurrentProposal(null); });
-
-    window.addEventListener('beforeprint', () => {
-      if (!vrPrintPrepared) prepareVrPrintAssets().catch(() => {});
-    });
-    window.addEventListener('afterprint', restoreVrPrintAssets);
 
     // ---- arranque ----
     renderServiceFilter();
