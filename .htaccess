@@ -1,0 +1,22 @@
+# Presupuestos ÓptimaCultura — enrutado y protección (Apache / SiteGround)
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # Imágenes subidas y API pasan por el front controller PHP.
+  # (el -f evita bucles: cuando ya se reescribió a api/index.php, no vuelve a entrar)
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteRule ^uploads/.+$ api/index.php [L,QSA]
+
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteRule ^api(/.*)?$ api/index.php [L,QSA]
+</IfModule>
+
+# Página por defecto
+DirectoryIndex index.html
+
+# Bloquear acceso web directo a datos y configuración
+RedirectMatch 404 ^/data/
+<FilesMatch "config\.php$">
+  Require all denied
+</FilesMatch>

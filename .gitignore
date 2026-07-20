@@ -16,3 +16,6 @@
 # Backend: datos en tiempo de ejecución (BD e imágenes subidas)
 /data/
 node_modules/
+
+# Configuración con credenciales (cada entorno la suya)
+/api/config.php
