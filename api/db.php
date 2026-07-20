@@ -36,6 +36,7 @@ function init_schema(PDO $pdo) {
       username VARCHAR(190) UNIQUE NOT NULL,
       password_hash VARCHAR(255) NOT NULL,
       role VARCHAR(20) NOT NULL DEFAULT 'user',
+      avatar VARCHAR(255) NOT NULL DEFAULT '',
       created_at VARCHAR(40) NOT NULL
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
     $pdo->exec("CREATE TABLE IF NOT EXISTS proposals (
@@ -56,6 +57,7 @@ function init_schema(PDO $pdo) {
       username TEXT UNIQUE NOT NULL,
       password_hash TEXT NOT NULL,
       role TEXT NOT NULL DEFAULT 'user',
+      avatar TEXT NOT NULL DEFAULT '',
       created_at TEXT NOT NULL
     )");
     $pdo->exec("CREATE TABLE IF NOT EXISTS proposals (
@@ -71,6 +73,25 @@ function init_schema(PDO $pdo) {
     $pdo->exec("CREATE INDEX IF NOT EXISTS idx_client ON proposals(client_name)");
     $pdo->exec("CREATE INDEX IF NOT EXISTS idx_updated ON proposals(updated_at)");
   }
+  // Migración: asegura la columna avatar en BD ya existentes.
+  ensure_column($pdo, 'users', 'avatar', $driver === 'mysql'
+    ? "VARCHAR(255) NOT NULL DEFAULT ''" : "TEXT NOT NULL DEFAULT ''");
+}
+
+// Añade una columna si aún no existe (idempotente, MySQL o SQLite).
+function ensure_column(PDO $pdo, string $table, string $column, string $definition) {
+  $driver = $pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
+  $exists = false;
+  if ($driver === 'mysql') {
+    $st = $pdo->prepare('SELECT COUNT(*) AS n FROM information_schema.columns WHERE table_schema = DATABASE() AND table_name = ? AND column_name = ?');
+    $st->execute([$table, $column]);
+    $exists = ((int) $st->fetch()['n']) > 0;
+  } else {
+    foreach ($pdo->query("PRAGMA table_info($table)")->fetchAll() as $col) {
+      if ($col['name'] === $column) { $exists = true; break; }
+    }
+  }
+  if (!$exists) $pdo->exec("ALTER TABLE $table ADD COLUMN $column $definition");
 }
 
 // Crea el admin la primera vez (sin usuarios). Si no hay contraseña en config,

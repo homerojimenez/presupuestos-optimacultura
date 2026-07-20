@@ -19,7 +19,7 @@ function read_json_body(): array {
 
 function current_user(PDO $pdo) {
   if (empty($_SESSION['user_id'])) return null;
-  $stmt = $pdo->prepare('SELECT id, username, role FROM users WHERE id = ?');
+  $stmt = $pdo->prepare('SELECT id, username, role, avatar FROM users WHERE id = ?');
   $stmt->execute([$_SESSION['user_id']]);
   $u = $stmt->fetch();
   if (!$u) return null;

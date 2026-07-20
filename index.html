@@ -33,8 +33,8 @@
 
     .sidebar {
       position: sticky;
-      top: 0;
-      height: 100vh;
+      top: 58px;
+      height: calc(100vh - 58px);
       overflow: auto;
       padding: 22px;
       background: var(--panel);
@@ -789,6 +789,33 @@
     .rt-toolbar button { border: 0; background: transparent; color: #fff; width: 32px; height: 32px; border-radius: 7px; cursor: pointer; font-size: 0.9rem; }
     .rt-toolbar button:hover { background: rgba(255,255,255,.16); }
 
+    /* ---------- Header fijo (perfil + guardado + histórico) ---------- */
+    .app-header {
+      position: sticky; top: 0; z-index: 600; height: 58px;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      padding: 0 20px; background: rgba(248,248,248,0.97);
+      border-bottom: 1px solid rgba(0,0,0,0.08); backdrop-filter: blur(12px);
+    }
+    body.booting .app-header, body.needs-login .app-header { display: none; }
+    .profile-area { position: relative; }
+    .profile-chip { display: inline-flex; align-items: center; gap: 10px; border: 0; background: transparent; cursor: pointer; padding: 4px 10px 4px 4px; border-radius: 999px; }
+    .profile-chip:hover { background: rgba(0,0,0,0.05); }
+    .avatar { width: 36px; height: 36px; border-radius: 50%; background: #d0d0d0 center/cover no-repeat; display: inline-flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 700; color: #555; flex: 0 0 auto; }
+    .profile-meta { display: flex; flex-direction: column; align-items: flex-start; line-height: 1.12; }
+    .profile-name { font-weight: 700; font-size: 0.9rem; }
+    .app-header .user-role { font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); border: 0; padding: 0; }
+    .profile-menu { position: absolute; top: calc(100% + 6px); left: 0; min-width: 200px; background: #fff; border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 14px 34px rgba(0,0,0,0.14); padding: 6px; z-index: 700; display: grid; gap: 2px; }
+    .profile-menu[hidden] { display: none; }
+    .profile-menu button { text-align: left; border: 0; background: transparent; padding: 9px 12px; border-radius: 8px; font: inherit; font-size: 0.88rem; cursor: pointer; }
+    .profile-menu button:hover { background: #f2f2f2; }
+    .header-right { display: flex; align-items: center; gap: 12px; }
+    .save-status { font-size: 0.82rem; color: var(--muted); min-width: 96px; text-align: right; }
+    .save-status.saving { color: #9a7d10; }
+    .save-status.saved { color: #1c7d3a; }
+    .save-status.error { color: #9d1c1c; }
+    .header-btn { min-height: 38px; padding: 8px 16px; border-radius: 10px; border: 1px solid var(--line); background: #fff; font: inherit; font-weight: 600; font-size: 0.86rem; cursor: pointer; }
+    .header-btn:hover { background: #f2f2f2; }
+
     @media print {
       @page { size: A4 portrait; margin: 0; }
       html, body { background: #fff !important; }
@@ -796,7 +823,7 @@
       .proj-image { cursor: default; }
       .proj-image .proj-image-hint, .proj-section-tools { display: none !important; }
       .app { display: block; }
-      .sidebar, .preview-header, .page-label { display: none !important; }
+      .app-header, .sidebar, .preview-header, .page-label { display: none !important; }
       .preview-area { padding: 0 !important; background: #fff !important; }
       #pages { gap: 0 !important; }
       .page-shell { width: 210mm !important; margin: 0 !important; break-after: page; page-break-after: always; }
@@ -825,18 +852,32 @@
     </div>
   </div>
 
+  <header class="app-header" id="appHeader">
+    <div class="profile-area">
+      <button class="profile-chip" id="profileBtn" type="button">
+        <span class="avatar" id="headerAvatar" aria-hidden="true"></span>
+        <span class="profile-meta">
+          <span class="profile-name" id="userName">—</span>
+          <span class="user-role" id="userRole" hidden>—</span>
+        </span>
+      </button>
+      <div class="profile-menu" id="profileMenu" hidden>
+        <button type="button" id="changePhotoBtn">Cambiar foto de perfil</button>
+        <button type="button" id="manageUsersBtn" hidden>Usuarios</button>
+        <button type="button" id="logoutBtn">Salir</button>
+      </div>
+    </div>
+    <div class="header-right">
+      <span class="save-status" id="saveStatus" title="Autoguardado"></span>
+      <button id="openProposalBtn" type="button" class="header-btn">Histórico</button>
+    </div>
+  </header>
+  <input id="avatarInput" type="file" accept="image/*" style="display:none" />
+
   <div class="app">
     <aside class="sidebar">
       <div class="eyebrow">ÓptimaCultura · Propuestas</div>
       <h1>Constructor de propuestas</h1>
-
-      <div class="user-bar">
-        <span class="user-name" id="userName">—</span>
-        <span class="user-role" id="userRole" hidden>—</span>
-        <span class="spacer"></span>
-        <button id="manageUsersBtn" type="button" hidden>Usuarios</button>
-        <button id="logoutBtn" type="button">Salir</button>
-      </div>
 
       <div class="doc-type-switch" role="tablist">
         <button type="button" class="doc-type-btn is-active" data-doctype="presupuesto">Presupuesto general</button>
@@ -1008,11 +1049,7 @@
       </section>
 
       <div class="actions">
-        <button id="saveProposalBtn" class="primary">Guardar en histórico</button>
-        <button id="openProposalBtn" class="secondary">Histórico</button>
         <button id="printBtn" class="primary">Exportar PDF</button>
-        <button id="exportKitBtn" class="secondary">Exportar PDF + datos</button>
-        <button id="exampleBtn" class="secondary">Cargar ejemplo</button>
         <button id="resetBtn" class="secondary">Nueva propuesta</button>
       </div>
     </aside>
@@ -1127,6 +1164,7 @@
       logoBgRemovalEnabled: false,
       logoAspect: 3,
       logoNativeAspect: 3,
+      additionalInfo: '',
       // Tipo de documento: 'presupuesto' (general) | 'proyeccion' (económica)
       docType: 'presupuesto',
       // Contenido de la proyección económica
@@ -1160,11 +1198,8 @@
       optionBDurationInput: document.getElementById('optionBDurationInput'),
       pages: document.getElementById('pages'),
       pageCount: document.getElementById('pageCount'),
-      saveProposalBtn: document.getElementById('saveProposalBtn'),
       openProposalBtn: document.getElementById('openProposalBtn'),
       printBtn: document.getElementById('printBtn'),
-      exportKitBtn: document.getElementById('exportKitBtn'),
-      exampleBtn: document.getElementById('exampleBtn'),
       resetBtn: document.getElementById('resetBtn'),
       projPhotoInput: document.getElementById('projPhotoInput'),
       projTextImageInput: document.getElementById('projTextImageInput')
@@ -2092,6 +2127,7 @@
         `;
       }).join('');
       warmVrComposites();
+      markDirty();
     }
 
     // Parcheo dirigido para ediciones de solo texto: actualiza únicamente el
@@ -2106,6 +2142,7 @@
       if (budgetA) budgetA.outerHTML = budgetMarkup('A');
       const budgetB = pages.querySelector('[data-budget-scope="B"]');
       if (budgetB) budgetB.outerHTML = budgetMarkup('B');
+      markDirty();
     }
 
     // Coalesce varias pulsaciones dentro del mismo frame en un solo parcheo.
@@ -2156,7 +2193,13 @@
         optionBPrice: state.optionBPrice,
         optionBPriceNote: state.optionBPriceNote,
         optionBDuration: state.optionBDuration,
-        logoBgRemovalEnabled: state.logoBgRemovalEnabled
+        logoBgRemovalEnabled: state.logoBgRemovalEnabled,
+        additionalInfo: state.additionalInfo,
+        docType: state.docType,
+        proyeccion: {
+          indice: { text: state.proyeccion.indice.text, image: state.proyeccion.indice.image },
+          finalSections: state.proyeccion.finalSections.map((s) => ({ id: s.id, title: s.title, text: s.text, image: s.image }))
+        }
       };
     }
 
@@ -2197,7 +2240,10 @@
         optionBPrice: '',
         optionBPriceNote: 'IVA no incluido',
         optionBDuration: '',
-        logoBgRemovalEnabled: false
+        logoBgRemovalEnabled: false,
+        additionalInfo: '',
+        docType: 'presupuesto',
+        proyeccion: { indice: { text: '', image: '' }, finalSections: [] }
       };
     }
 
@@ -2220,6 +2266,7 @@
     // Punto ÚNICO para cargar una propuesta completa (reset, ejemplo o archivo).
     // Rellena los huecos con los valores por defecto y deja el estado coherente.
     async function applyState(data) {
+      suppressAutosave = true;
       const d = Object.assign(defaultProposalState(), data || {});
       state.heroData = d.heroData || '';
       state.logoData = d.logoData || '';
@@ -2240,6 +2287,18 @@
       state.optionBPriceNote = d.optionBPriceNote || 'IVA no incluido';
       state.optionBDuration = d.optionBDuration || '';
       state.logoBgRemovalEnabled = !!d.logoBgRemovalEnabled;
+      state.additionalInfo = d.additionalInfo || '';
+      state.docType = d.docType === 'proyeccion' ? 'proyeccion' : 'presupuesto';
+      const proj = (d.proyeccion && typeof d.proyeccion === 'object') ? d.proyeccion : {};
+      state.proyeccion = {
+        indice: {
+          text: (proj.indice && proj.indice.text) || '',
+          image: (proj.indice && proj.indice.image) || ''
+        },
+        finalSections: Array.isArray(proj.finalSections)
+          ? proj.finalSections.map((s) => ({ id: s.id || ('sec' + (++proyeccionSeq)), title: s.title || '', text: s.text || '', image: s.image || '' }))
+          : []
+      };
       state.logoAspect = 3;
       state.logoNativeAspect = 3;
 
@@ -2251,9 +2310,12 @@
       }
 
       syncInputsFromState();
+      document.querySelector('.app').setAttribute('data-doctype', state.docType);
+      document.querySelectorAll('.doc-type-btn').forEach((b) => b.classList.toggle('is-active', b.dataset.doctype === state.docType));
       state.logoVersion += 1;
       resetVrComposites();
       renderAll();
+      suppressAutosave = false;
     }
 
     function setServiceCheckboxes(values) {
@@ -2470,6 +2532,12 @@
       userRole: document.getElementById('userRole'),
       logoutBtn: document.getElementById('logoutBtn'),
       manageUsersBtn: document.getElementById('manageUsersBtn'),
+      profileBtn: document.getElementById('profileBtn'),
+      profileMenu: document.getElementById('profileMenu'),
+      changePhotoBtn: document.getElementById('changePhotoBtn'),
+      avatarInput: document.getElementById('avatarInput'),
+      headerAvatar: document.getElementById('headerAvatar'),
+      saveStatus: document.getElementById('saveStatus'),
       historyModal: document.getElementById('historyModal'),
       historySearch: document.getElementById('historySearch'),
       historyServiceFilter: document.getElementById('historyServiceFilter'),
@@ -2505,6 +2573,15 @@
     }
 
     // ---- sesión ----
+    function renderAvatar(el, user) {
+      if (user && user.avatar) {
+        el.style.backgroundImage = `url('${user.avatar}')`;
+        el.textContent = '';
+      } else {
+        el.style.backgroundImage = '';
+        el.textContent = (user && user.username ? user.username[0] : '?').toUpperCase();
+      }
+    }
     function showApp(user) {
       currentUser = user;
       document.body.classList.remove('booting', 'needs-login');
@@ -2512,6 +2589,7 @@
       ui.userRole.textContent = user.role === 'admin' ? 'Admin' : 'Usuario';
       ui.userRole.hidden = false;
       ui.manageUsersBtn.hidden = user.role !== 'admin';
+      renderAvatar(ui.headerAvatar, user);
     }
 
     function showLogin() {
@@ -2556,40 +2634,58 @@
       showLogin();
     });
 
-    // ---- guardar / cargar propuesta ----
-    function updateSaveButtonLabel() {
-      els.saveProposalBtn.textContent = currentProposalId
-        ? 'Actualizar en histórico' : 'Guardar en histórico';
+    // ---- autosave ----
+    function setSaveStatus(text, cls) {
+      ui.saveStatus.textContent = text;
+      ui.saveStatus.className = 'save-status' + (cls ? ' ' + cls : '');
     }
     function setCurrentProposal(id) {
       currentProposalId = id || null;
-      updateSaveButtonLabel();
+      setSaveStatus(id ? 'Guardado ✓' : '', id ? 'saved' : '');
     }
 
-    async function saveProposalToHistory() {
-      const btn = els.saveProposalBtn;
-      btn.disabled = true;
-      btn.textContent = 'Guardando…';
+    function proposalHasContent() {
+      if (state.clientName.trim() || state.services.size || state.heroData || state.logoData) return true;
+      if (state.docType === 'proyeccion') {
+        const p = state.proyeccion;
+        if ((p.indice.text || '').trim() || p.indice.image) return true;
+        if (p.finalSections.some((s) => (s.title || '').trim() || (s.text || '').trim() || s.image)) return true;
+      }
+      return false;
+    }
+
+    let autosaveTimer = 0, saving = false, pendingSave = false, suppressAutosave = false;
+    async function saveProposal() {
+      if (!currentUser || !proposalHasContent()) return;
+      if (saving) { pendingSave = true; return; }
+      saving = true;
+      setSaveStatus('Guardando…', 'saving');
       try {
         const payload = proposalToSerializable();
         const data = currentProposalId
           ? await api(`/api/proposals/${currentProposalId}`, { method: 'PUT', body: { payload } })
           : await api('/api/proposals', { method: 'POST', body: { payload } });
         currentProposalId = data.id;
-        // Sustituye las imágenes base64 por sus URLs para no duplicarlas al re-guardar.
+        // Sustituye base64 por URLs para no duplicar imágenes al re-guardar.
         if (data.payload) {
           state.heroData = data.payload.heroData || '';
           state.logoData = data.payload.logoData || '';
         }
-        btn.textContent = '✓ Guardado';
-        setTimeout(updateSaveButtonLabel, 1200);
+        setSaveStatus('Guardado ✓', 'saved');
       } catch (err) {
-        alert('No se pudo guardar: ' + (err.message || 'error'));
-        updateSaveButtonLabel();
+        setSaveStatus('Error al guardar', 'error');
       } finally {
-        btn.disabled = false;
+        saving = false;
+        if (pendingSave) { pendingSave = false; scheduleAutosave(500); }
       }
     }
+    function scheduleAutosave(delay = 1500) {
+      clearTimeout(autosaveTimer);
+      if (!currentUser || !proposalHasContent()) return;
+      setSaveStatus('Cambios sin guardar…', '');
+      autosaveTimer = setTimeout(saveProposal, delay);
+    }
+    function markDirty() { if (!suppressAutosave) scheduleAutosave(); }
 
     async function loadProposalFromHistory(id) {
       const data = await api(`/api/proposals/${id}`);
@@ -2752,14 +2848,33 @@
     });
 
     // ---- acciones principales ----
-    els.saveProposalBtn.addEventListener('click', saveProposalToHistory);
     els.printBtn.addEventListener('click', async () => { await runPdfExport(els.printBtn); });
-    els.exportKitBtn.addEventListener('click', async () => {
-      downloadProposalData(getProposalBaseName());
-      await runPdfExport(els.exportKitBtn);
-    });
-    els.exampleBtn.addEventListener('click', () => { loadExample(); setCurrentProposal(null); });
     els.resetBtn.addEventListener('click', () => { resetAll(); setCurrentProposal(null); });
+
+    // ---- menú de perfil (header) ----
+    ui.profileBtn.addEventListener('click', (ev) => {
+      ev.stopPropagation();
+      ui.profileMenu.hidden = !ui.profileMenu.hidden;
+    });
+    document.addEventListener('click', (ev) => {
+      if (!ui.profileMenu.hidden && !ui.profileMenu.contains(ev.target) && ev.target !== ui.profileBtn && !ui.profileBtn.contains(ev.target)) {
+        ui.profileMenu.hidden = true;
+      }
+    });
+    ui.changePhotoBtn.addEventListener('click', () => { ui.profileMenu.hidden = true; ui.avatarInput.click(); });
+    ui.avatarInput.addEventListener('change', (ev) => {
+      const file = ev.target.files && ev.target.files[0];
+      ev.target.value = '';
+      if (!file) return;
+      readFileAsDataURL(file, async (data) => {
+        try {
+          const res = await api('/api/account/avatar', { method: 'POST', body: { avatar: data } });
+          if (currentUser) { currentUser.avatar = res.avatar || data; renderAvatar(ui.headerAvatar, currentUser); }
+        } catch (err) {
+          alert('No se pudo actualizar la foto: ' + err.message);
+        }
+      });
+    });
 
     /* =========================================================
        Proyección económica: tipo de documento + edición en página
@@ -2792,7 +2907,8 @@
       } else if (t.matches && t.matches('.proj-title[data-proj-title]')) {
         const s = state.proyeccion.finalSections.find((x) => x.id === t.dataset.projTitle);
         if (s) s.title = t.textContent;
-      }
+      } else return;
+      markDirty();
     });
 
     // Clic en contenedor de imagen -> adjuntar foto; y eliminar sección
@@ -2871,7 +2987,6 @@
 
     // ---- arranque ----
     renderServiceFilter();
-    updateSaveButtonLabel();
     document.querySelector('.app').setAttribute('data-doctype', state.docType);
     renderAll();
     bootstrapSession();

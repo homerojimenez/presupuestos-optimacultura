@@ -50,7 +50,7 @@ if ($path === '/api/login' && $method === 'POST') {
   }
   session_regenerate_id(true);
   $_SESSION['user_id'] = (int) $u['id'];
-  json_out(200, ['user' => ['id' => (int) $u['id'], 'username' => $u['username'], 'role' => $u['role']]]);
+  json_out(200, ['user' => ['id' => (int) $u['id'], 'username' => $u['username'], 'role' => $u['role'], 'avatar' => $u['avatar'] ?? '']]);
 }
 
 if ($path === '/api/logout' && $method === 'POST') {
@@ -85,11 +85,32 @@ if ($path === '/api/account/password' && $method === 'POST') {
   json_out(200, ['ok' => true]);
 }
 
+// Foto de perfil del usuario: se guarda en /uploads y se referencia por URL.
+if ($path === '/api/account/avatar' && $method === 'POST') {
+  require_auth($user);
+  $b = read_json_body();
+  $avatar = $b['avatar'] ?? '';
+  if (is_string($avatar) && str_starts_with($avatar, 'data:')) {
+    $url = store_data_url($avatar);
+    if (!$url) json_out(400, ['error' => 'Imagen no válida']);
+    $avatar = $url;
+  }
+  // Borra el avatar anterior si era un fichero subido.
+  $prev = $pdo->prepare('SELECT avatar FROM users WHERE id = ?');
+  $prev->execute([$user['id']]);
+  $old = $prev->fetch()['avatar'] ?? '';
+  if (is_string($old) && str_starts_with($old, '/uploads/') && $old !== $avatar) {
+    delete_uploads([basename($old) => true]);
+  }
+  $pdo->prepare('UPDATE users SET avatar = ? WHERE id = ?')->execute([$avatar, $user['id']]);
+  json_out(200, ['avatar' => $avatar]);
+}
+
 // ---- usuarios (admin) ----
 if ($path === '/api/users' && $method === 'GET') {
   require_auth($user);
   if ($user['role'] !== 'admin') json_out(403, ['error' => 'Solo administradores']);
-  $rows = $pdo->query('SELECT id, username, role, created_at FROM users ORDER BY username')->fetchAll();
+  $rows = $pdo->query('SELECT id, username, role, avatar, created_at FROM users ORDER BY username')->fetchAll();
   foreach ($rows as &$r) { $r['id'] = (int) $r['id']; }
   json_out(200, ['users' => $rows]);
 }
