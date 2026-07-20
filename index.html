@@ -2325,36 +2325,32 @@
       downloadBlob(`${filenameBase}.optima.json`, blob);
     }
 
-    async function applyProposalData(payload) {
-      state.heroData = payload.heroData || '';
-      state.logoData = payload.logoData || '';
-      state.logoTrimData = '';
-      state.logoBgRemovedData = '';
-      state.logoBg = payload.logoBg || '#efefef';
-      state.clientName = payload.clientName || '';
-      state.services = new Set(Array.isArray(payload.services) ? payload.services : []);
-      state.optionAServices = new Set(Array.isArray(payload.optionAServices) ? payload.optionAServices : (Array.isArray(payload.services) ? payload.services : []));
-      state.descriptions = payload.descriptions && typeof payload.descriptions === 'object' ? payload.descriptions : {};
-      state.price = payload.price || '';
-      state.priceNote = payload.priceNote || 'IVA no incluido';
-      state.duration = payload.duration || '';
-      state.optionBEnabled = !!payload.optionBEnabled;
-      state.optionBServices = new Set(Array.isArray(payload.optionBServices) ? payload.optionBServices : []);
-      state.optionBDescriptions = payload.optionBDescriptions && typeof payload.optionBDescriptions === 'object' ? payload.optionBDescriptions : {};
-      state.optionBPrice = payload.optionBPrice || '';
-      state.optionBPriceNote = payload.optionBPriceNote || 'IVA no incluido';
-      state.optionBDuration = payload.optionBDuration || '';
-      state.logoBgRemovalEnabled = !!payload.logoBgRemovalEnabled;
-      state.logoAspect = 3;
-      state.logoNativeAspect = 3;
+    // Estado por defecto de una propuesta (solo campos "de documento"; los
+    // derivados —logoTrim, logoAspect, versiones— los calcula applyState()).
+    function defaultProposalState() {
+      return {
+        heroData: '',
+        logoData: '',
+        logoBg: '#efefef',
+        clientName: '',
+        services: [],
+        optionAServices: [],
+        descriptions: {},
+        price: '',
+        priceNote: 'IVA no incluido',
+        duration: '',
+        optionBEnabled: false,
+        optionBServices: [],
+        optionBDescriptions: {},
+        optionBPrice: '',
+        optionBPriceNote: 'IVA no incluido',
+        optionBDuration: '',
+        logoBgRemovalEnabled: false
+      };
+    }
 
-      if (state.logoData) {
-        await refreshLogoDerivedAssets();
-      } else {
-        state.logoTrimData = '';
-        state.logoBgRemovedData = '';
-      }
-
+    // Vuelca el estado actual a los controles del formulario.
+    function syncInputsFromState() {
       els.heroInput.value = '';
       els.logoInput.value = '';
       els.logoBgInput.value = state.logoBg;
@@ -2367,6 +2363,42 @@
       els.optionBPriceNoteInput.value = state.optionBPriceNote;
       els.optionBDurationInput.value = state.optionBDuration;
       setServiceCheckboxes(Array.from(state.services));
+    }
+
+    // Punto ÚNICO para cargar una propuesta completa (reset, ejemplo o archivo).
+    // Rellena los huecos con los valores por defecto y deja el estado coherente.
+    async function applyState(data) {
+      const d = Object.assign(defaultProposalState(), data || {});
+      state.heroData = d.heroData || '';
+      state.logoData = d.logoData || '';
+      state.logoTrimData = '';
+      state.logoBgRemovedData = '';
+      state.logoBg = d.logoBg || '#efefef';
+      state.clientName = d.clientName || '';
+      state.services = new Set(Array.isArray(d.services) ? d.services : []);
+      state.optionAServices = new Set(Array.isArray(d.optionAServices) ? d.optionAServices : []);
+      state.descriptions = (d.descriptions && typeof d.descriptions === 'object') ? d.descriptions : {};
+      state.price = d.price || '';
+      state.priceNote = d.priceNote || 'IVA no incluido';
+      state.duration = d.duration || '';
+      state.optionBEnabled = !!d.optionBEnabled;
+      state.optionBServices = new Set(Array.isArray(d.optionBServices) ? d.optionBServices : []);
+      state.optionBDescriptions = (d.optionBDescriptions && typeof d.optionBDescriptions === 'object') ? d.optionBDescriptions : {};
+      state.optionBPrice = d.optionBPrice || '';
+      state.optionBPriceNote = d.optionBPriceNote || 'IVA no incluido';
+      state.optionBDuration = d.optionBDuration || '';
+      state.logoBgRemovalEnabled = !!d.logoBgRemovalEnabled;
+      state.logoAspect = 3;
+      state.logoNativeAspect = 3;
+
+      if (state.logoData) {
+        await refreshLogoDerivedAssets();
+      } else {
+        state.logoTrimData = '';
+        state.logoBgRemovedData = '';
+      }
+
+      syncInputsFromState();
       state.logoVersion += 1;
       resetVrComposites();
       renderAll();
@@ -2376,7 +2408,7 @@
       if (!file) return;
       const raw = await file.text();
       const payload = JSON.parse(raw);
-      await applyProposalData(payload);
+      await applyState(payload);
     }
 
     function setServiceCheckboxes(values) {
@@ -2387,71 +2419,19 @@
     }
 
     function loadExample() {
-      state.clientName = 'Cripta de Gaudí';
-      state.logoBg = '#efefef';
-      state.optionAServices = new Set();
-      state.price = '0,65';
-      state.priceNote = 'IVA no incluido';
-      state.duration = '60';
-      state.optionBEnabled = false;
-      state.optionBServices = new Set();
-      state.optionBDescriptions = {};
-      state.logoBgRemovalEnabled = false;
-      state.logoNativeAspect = 3;
-      state.optionBPrice = '';
-      state.optionBPriceNote = 'IVA no incluido';
-      state.optionBDuration = '';
-      state.descriptions = {
-        ag_digital: 'Audioguía digital accesible desde el móvil del visitante mediante QR, con locución, multilenguaje y despliegue sin descarga.'
-      };
-      els.clientNameInput.value = state.clientName;
-      els.logoBgInput.value = state.logoBg;
-      els.priceInput.value = state.price;
-      els.priceNoteInput.value = state.priceNote;
-      els.durationInput.value = state.duration;
-      els.optionBToggle.checked = false;
-      els.optionBPriceInput.value = '';
-      els.optionBPriceNoteInput.value = state.optionBPriceNote;
-      els.optionBDurationInput.value = '';
-      setServiceCheckboxes(['ag_digital']);
-      renderAll();
+      applyState({
+        clientName: 'Cripta de Gaudí',
+        services: ['ag_digital'],
+        price: '0,65',
+        duration: '60',
+        descriptions: {
+          ag_digital: 'Audioguía digital accesible desde el móvil del visitante mediante QR, con locución, multilenguaje y despliegue sin descarga.'
+        }
+      });
     }
 
     function resetAll() {
-      state.heroData = '';
-      state.logoData = '';
-      state.logoTrimData = '';
-      state.logoBgRemovedData = '';
-      state.logoBg = '#efefef';
-      state.clientName = '';
-      state.services = new Set();
-      state.optionAServices = new Set();
-      state.descriptions = {};
-      state.price = '';
-      state.priceNote = 'IVA no incluido';
-      state.duration = '';
-      state.optionBEnabled = false;
-      state.optionBServices = new Set();
-      state.optionBDescriptions = {};
-      state.logoBgRemovalEnabled = false;
-      state.logoNativeAspect = 3;
-      state.optionBPrice = '';
-      state.optionBPriceNote = 'IVA no incluido';
-      state.optionBDuration = '';
-
-      els.heroInput.value = '';
-      els.logoInput.value = '';
-      els.logoBgInput.value = '#efefef';
-      els.clientNameInput.value = '';
-      els.priceInput.value = '';
-      els.priceNoteInput.value = 'IVA no incluido';
-      els.durationInput.value = '';
-      els.optionBToggle.checked = false;
-      els.optionBPriceInput.value = '';
-      els.optionBPriceNoteInput.value = 'IVA no incluido';
-      els.optionBDurationInput.value = '';
-      setServiceCheckboxes([]);
-      renderAll();
+      applyState(defaultProposalState());
     }
 
     els.heroInput.addEventListener('change', (ev) => {
