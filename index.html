@@ -989,7 +989,24 @@
     }
 
     function parseLocalizedNumber(value) {
-      const normalized = String(value || '').trim().replace(/\./g, '').replace(',', '.');
+      const raw = String(value || '').trim().replace(/[^\d.,-]/g, '');
+      if (!raw) return null;
+      const commas = (raw.match(/,/g) || []).length;
+      const dots = (raw.match(/\./g) || []).length;
+      let normalized = raw;
+      if (commas && dots) {
+        // El separador decimal es el que aparece más a la derecha.
+        normalized = raw.lastIndexOf(',') > raw.lastIndexOf('.')
+          ? raw.replace(/\./g, '').replace(/,/g, '.')   // europeo: 1.234,56
+          : raw.replace(/,/g, '');                       // anglosajón: 1,234.56
+      } else if (commas) {
+        // Una sola coma = decimal (0,65); varias = separador de miles.
+        normalized = commas > 1 ? raw.replace(/,/g, '') : raw.replace(',', '.');
+      } else if (dots > 1) {
+        // Varios puntos = separador de miles (1.234.567).
+        normalized = raw.replace(/\./g, '');
+      }
+      // Un solo punto se deja tal cual: ya es un decimal válido (0.65).
       const num = Number(normalized);
       return Number.isFinite(num) ? num : null;
     }
@@ -2235,6 +2252,18 @@
       });
     });
 
+    // Calcula el logo sin fondo solo cuando hace falta (operación cara:
+    // recorre todos los píxeles). Se cachea en state.logoBgRemovedData.
+    async function ensureLogoBgRemoved() {
+      if (!state.logoData || state.logoBgRemovedData) return;
+      try {
+        state.logoBgRemovedData = await removeLogoBackgroundDataURL(state.logoData);
+      } catch (error) {
+        console.error('No se pudo eliminar el fondo del logo', error);
+        state.logoBgRemovedData = state.logoTrimData || state.logoData;
+      }
+    }
+
     async function refreshLogoDerivedAssets() {
       if (!state.logoData) {
         state.logoTrimData = '';
@@ -2257,11 +2286,10 @@
         console.error('No se pudo recortar el logo', error);
         state.logoTrimData = state.logoData;
       }
-      try {
-        state.logoBgRemovedData = await removeLogoBackgroundDataURL(state.logoData);
-      } catch (error) {
-        console.error('No se pudo eliminar el fondo del logo', error);
-        state.logoBgRemovedData = state.logoTrimData || state.logoData;
+      // El quita-fondos solo se calcula si la opción está activada.
+      state.logoBgRemovedData = '';
+      if (state.logoBgRemovalEnabled) {
+        await ensureLogoBgRemoved();
       }
       state.logoAspect = state.logoNativeAspect || 3;
     }
@@ -2295,8 +2323,8 @@
 
     els.logoRemoveBgBtn.addEventListener('click', async () => {
       state.logoBgRemovalEnabled = !state.logoBgRemovalEnabled;
-      if (state.logoData && !state.logoBgRemovedData) {
-        await refreshLogoDerivedAssets();
+      if (state.logoBgRemovalEnabled && state.logoData) {
+        await ensureLogoBgRemoved();
       }
       state.logoAspect = state.logoNativeAspect || 3;
       state.logoVersion += 1;
