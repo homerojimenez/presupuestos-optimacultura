@@ -1352,7 +1352,7 @@
         textarea.addEventListener('input', (ev) => {
           const targetStore = getDescriptionsForScope(scope);
           targetStore[id] = ev.target.value;
-          renderPreview();
+          renderText();
         });
       });
     }
@@ -1375,7 +1375,7 @@
           <div class="cover-bg-circle-a"></div>
           <div class="cover-kicker">Propuesta</div>
           <div class="cover-text">
-            <h2 class="cover-title">${title}</h2>
+            <h2 class="cover-title" data-bind="cover-title">${title}</h2>
             <div class="cover-subtitle">${subtitle}</div>
           </div>
           <div class="cover-media">
@@ -1440,7 +1440,7 @@
         `;
 
       return `
-        <article class="page budget-page">
+        <article class="page budget-page" data-budget-scope="${escapeHTML(scope)}">
           <h2 class="budget-title">Oferta económica</h2>
           ${offerHeader}
           <div class="budget-rma">
@@ -2142,12 +2142,33 @@
       warmVrComposites();
     }
 
+    // Parcheo dirigido para ediciones de solo texto: actualiza únicamente el
+    // título de portada y las páginas de presupuesto (que no llevan imágenes),
+    // sin reconstruir todo el documento ni re-decodificar la foto/logo base64.
+    function renderTextNow() {
+      const pages = els.pages;
+      if (!pages) return;
+      const coverTitle = pages.querySelector('[data-bind="cover-title"]');
+      if (coverTitle) coverTitle.textContent = state.clientName || 'Nombre del cliente';
+      const budgetA = pages.querySelector('[data-budget-scope="A"]');
+      if (budgetA) budgetA.outerHTML = budgetMarkup('A');
+      const budgetB = pages.querySelector('[data-budget-scope="B"]');
+      if (budgetB) budgetB.outerHTML = budgetMarkup('B');
+    }
+
+    // Coalesce varias pulsaciones dentro del mismo frame en un solo parcheo.
+    let textRenderHandle = 0;
+    function renderText() {
+      if (textRenderHandle) return;
+      textRenderHandle = requestAnimationFrame(() => {
+        textRenderHandle = 0;
+        renderTextNow();
+      });
+    }
+
     function renderAll() {
       syncOfferServiceSelections();
       updateEditors();
-      updateClientDataPreview();
-      updateLogoRemoveBgButton();
-      updateOptionBConfig();
       renderPreview();
     }
 
@@ -2511,23 +2532,23 @@
 
     els.clientNameInput.addEventListener('input', (ev) => {
       state.clientName = ev.target.value;
-      renderPreview();
+      renderText();
     });
 
 
     els.priceInput.addEventListener('input', (ev) => {
       state.price = ev.target.value;
-      renderPreview();
+      renderText();
     });
 
     els.priceNoteInput.addEventListener('input', (ev) => {
       state.priceNote = ev.target.value;
-      renderPreview();
+      renderText();
     });
 
     els.durationInput.addEventListener('input', (ev) => {
       state.duration = ev.target.value;
-      renderPreview();
+      renderText();
     });
 
     els.optionBToggle.addEventListener('change', (ev) => {
@@ -2544,17 +2565,17 @@
 
     els.optionBPriceInput.addEventListener('input', (ev) => {
       state.optionBPrice = ev.target.value;
-      renderPreview();
+      renderText();
     });
 
     els.optionBPriceNoteInput.addEventListener('input', (ev) => {
       state.optionBPriceNote = ev.target.value;
-      renderPreview();
+      renderText();
     });
 
     els.optionBDurationInput.addEventListener('input', (ev) => {
       state.optionBDuration = ev.target.value;
-      renderPreview();
+      renderText();
     });
 
     els.optionAServiceList.addEventListener('change', (ev) => {
