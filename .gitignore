@@ -12,3 +12,7 @@
 # Temporales
 *.log
 *.tmp
+
+# Backend: datos en tiempo de ejecución (BD e imágenes subidas)
+/data/
+node_modules/
