@@ -37,6 +37,25 @@ Incluir:
    'secure_cookies' => true,   // con HTTPS activo (paso 6)
    ```
 
+## 4b. Asistente por IA (opcional)
+El chat asistente (relleno por voz/texto, búsqueda de logo e imágenes) se activa
+solo si añades sus claves en `api/config.php`, sección `'ai'`. **Las claves nunca
+llegan al navegador: solo se usan desde el servidor.** Cada función se enciende
+por separado según la clave que pongas:
+
+| Clave | Para qué | Dónde obtenerla |
+|-------|----------|-----------------|
+| `gemini_api_key` | Agente **y** voz (Gemini transcribe audio) | https://aistudio.google.com/apikey |
+| `anthropic_api_key` | Agente (alternativa: Claude) | https://console.anthropic.com |
+| `openai_api_key` | Agente y/o voz (Whisper) | https://platform.openai.com |
+| `pexels_api_key` | Buscar imágenes de portada | https://www.pexels.com/api/ (gratis) |
+
+- Con **una sola clave de Gemini** ya tienes agente + voz.
+- `provider` elige el motor (`'gemini'`, `'anthropic'`, `'openai'` o `'auto'`).
+- El logo del cliente se extrae de su web **sin clave**; `logodev_token` es opcional
+  para mayor calidad.
+- Requiere que la extensión **cURL** de PHP esté activa (lo está por defecto en SiteGround).
+
 ## 5. Versión de PHP
 En **Site Tools → Devs → PHP Manager** deja PHP en **8.x** (recomendado 8.1+).
 

@@ -824,7 +824,7 @@
     @media print {
       @page { size: A4 portrait; margin: 0; }
       html, body { background: #fff !important; }
-      #loginOverlay, .modal-overlay, .rt-toolbar { display: none !important; }
+      #loginOverlay, .modal-overlay, .rt-toolbar, .assistant-fab, .assistant-panel { display: none !important; }
       .proj-image { cursor: default; }
       .proj-image .proj-image-hint, .proj-section-tools { display: none !important; }
       .app { display: block; }
@@ -835,6 +835,87 @@
       .page-shell:last-child { break-after: auto; page-break-after: auto; }
       .page { width: 210mm !important; height: 297mm !important; box-shadow: none !important; border-radius: 0 !important; }
     }
+
+    /* ---- Asistente por IA ---- */
+    .assistant-fab {
+      position: fixed; right: 22px; bottom: 22px; z-index: 60; width: auto;
+      display: inline-flex; align-items: center; gap: 9px;
+      padding: 12px 18px; border: none; border-radius: 999px;
+      background: #111; color: #fff; font: inherit; font-weight: 600; font-size: 0.9rem;
+      cursor: pointer; box-shadow: 0 14px 34px rgba(0,0,0,0.25);
+    }
+    .assistant-fab:hover { background: #000; }
+    .assistant-fab .dot { width: 8px; height: 8px; border-radius: 50%; background: #7Cf5a0; }
+    .assistant-fab[hidden] { display: none; }
+
+    .assistant-panel {
+      position: fixed; right: 22px; bottom: 22px; z-index: 61;
+      width: min(410px, calc(100vw - 32px));
+      height: min(620px, calc(100vh - 90px));
+      display: flex; flex-direction: column;
+      background: var(--card); border: 1px solid var(--line);
+      border-radius: var(--radius-lg); box-shadow: 0 24px 70px rgba(0,0,0,0.28);
+      overflow: hidden;
+    }
+    .assistant-panel[hidden] { display: none; }
+    .assistant-head {
+      display: flex; align-items: center; gap: 10px;
+      padding: 13px 15px; border-bottom: 1px solid var(--line); background: #111; color: #fff;
+    }
+    .assistant-head .title { font-weight: 700; font-size: 0.95rem; }
+    .assistant-head .sub { font-size: 0.72rem; color: rgba(255,255,255,0.6); }
+    .assistant-head .spacer { flex: 1; }
+    .assistant-head button {
+      width: auto; background: transparent; border: none; color: #fff; cursor: pointer;
+      font-size: 1.1rem; line-height: 1; padding: 6px; border-radius: 8px;
+    }
+    .assistant-head button:hover { background: rgba(255,255,255,0.14); }
+
+    .assistant-body { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; }
+    .assistant-msg { max-width: 85%; padding: 10px 13px; border-radius: 14px; font-size: 0.9rem; line-height: 1.45; white-space: pre-wrap; word-wrap: break-word; }
+    .assistant-msg.user { align-self: flex-end; background: #111; color: #fff; border-bottom-right-radius: 5px; }
+    .assistant-msg.bot { align-self: flex-start; background: #f0f0f0; color: #111; border-bottom-left-radius: 5px; }
+    .assistant-msg.bot strong { font-weight: 700; }
+    .assistant-note { align-self: center; font-size: 0.78rem; color: var(--muted); text-align: center; padding: 4px 8px; }
+
+    .assistant-images { align-self: flex-start; width: 100%; }
+    .assistant-images .lbl { font-size: 0.78rem; color: var(--muted); margin: 0 0 6px; }
+    .assistant-images .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
+    .assistant-thumb {
+      position: relative; aspect-ratio: 1/1; border: 1px solid var(--line); border-radius: 10px;
+      overflow: hidden; cursor: pointer; background: #fafafa; padding: 0;
+    }
+    .assistant-thumb img { width: 100%; height: 100%; object-fit: contain; display: block; }
+    .assistant-thumb:hover { border-color: #111; box-shadow: 0 0 0 2px #111 inset; }
+    .assistant-thumb.busy { opacity: 0.5; pointer-events: none; }
+
+    .assistant-typing { align-self: flex-start; display: inline-flex; gap: 4px; padding: 12px 14px; background: #f0f0f0; border-radius: 14px; }
+    .assistant-typing span { width: 7px; height: 7px; border-radius: 50%; background: #bbb; animation: atblink 1s infinite; }
+    .assistant-typing span:nth-child(2) { animation-delay: 0.2s; }
+    .assistant-typing span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes atblink { 0%,60%,100% { opacity: 0.3; } 30% { opacity: 1; } }
+
+    .assistant-attach-preview { align-self: flex-end; display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: var(--muted); }
+    .assistant-attach-preview img { width: 42px; height: 42px; object-fit: cover; border-radius: 8px; border: 1px solid var(--line); }
+    .assistant-attach-preview button { width: auto; border: none; background: none; cursor: pointer; font-size: 0.85rem; padding: 3px 6px; }
+
+    .assistant-foot { border-top: 1px solid var(--line); padding: 10px; }
+    .assistant-input-row { display: flex; align-items: flex-end; gap: 7px; }
+    .assistant-input-row textarea {
+      flex: 1; resize: none; border: 1px solid var(--line); border-radius: 12px;
+      padding: 9px 11px; font: inherit; font-size: 0.9rem; max-height: 110px; min-height: 40px;
+    }
+    .assistant-input-row textarea:focus { outline: none; border-color: #111; }
+    .assistant-icon-btn {
+      width: 40px; height: 40px; flex: none; border: 1px solid var(--line); border-radius: 12px;
+      background: #fff; cursor: pointer; font-size: 1.15rem; display: inline-flex; align-items: center; justify-content: center;
+    }
+    .assistant-icon-btn:hover { background: #f2f2f2; }
+    .assistant-icon-btn.send { background: #111; color: #fff; border-color: #111; }
+    .assistant-icon-btn.send:disabled { opacity: 0.4; cursor: not-allowed; }
+    .assistant-icon-btn.rec { background: #c0392b; color: #fff; border-color: #c0392b; animation: atpulse 1.2s infinite; }
+    @keyframes atpulse { 0%,100% { box-shadow: 0 0 0 0 rgba(192,57,43,0.5); } 50% { box-shadow: 0 0 0 6px rgba(192,57,43,0); } }
+    .assistant-disabled-note { font-size: 0.76rem; color: var(--muted); padding: 4px 2px 0; }
   </style>
 </head>
 <body class="booting">
@@ -1130,6 +1211,34 @@
   </div>
   <input id="projTextImageInput" type="file" accept="image/*" style="display:none" />
   <input id="projPhotoInput" type="file" accept="image/*" style="display:none" />
+
+  <!-- Asistente por IA -->
+  <button id="assistantFab" class="assistant-fab" type="button" hidden>
+    <span class="dot"></span> Asistente
+  </button>
+  <section id="assistantPanel" class="assistant-panel" hidden aria-label="Asistente por IA">
+    <div class="assistant-head">
+      <div>
+        <div class="title">Asistente</div>
+        <div class="sub" id="assistantProvider">IA</div>
+      </div>
+      <div class="spacer"></div>
+      <button type="button" id="assistantClearBtn" title="Nueva conversación">⟲</button>
+      <button type="button" id="assistantCloseBtn" title="Cerrar">✕</button>
+    </div>
+    <div class="assistant-body" id="assistantBody"></div>
+    <div class="assistant-foot">
+      <div class="assistant-attach-preview" id="assistantAttachPreview" hidden></div>
+      <div class="assistant-input-row">
+        <button type="button" class="assistant-icon-btn" id="assistantAttachBtn" title="Adjuntar foto">📎</button>
+        <button type="button" class="assistant-icon-btn" id="assistantMicBtn" title="Hablar">🎤</button>
+        <textarea id="assistantInput" rows="1" placeholder="Escribe o dicta…"></textarea>
+        <button type="button" class="assistant-icon-btn send" id="assistantSendBtn" title="Enviar" disabled>➤</button>
+      </div>
+      <div class="assistant-disabled-note" id="assistantDisabledNote" hidden></div>
+    </div>
+  </section>
+  <input id="assistantFileInput" type="file" accept="image/*" style="display:none" />
 
   <script>
 
@@ -2612,6 +2721,7 @@
       ui.userRole.hidden = false;
       ui.manageUsersBtn.hidden = user.role !== 'admin';
       renderAvatar(ui.headerAvatar, user);
+      assistantInit();
     }
 
     function showLogin() {
@@ -2620,6 +2730,7 @@
       document.body.classList.add('needs-login');
       ui.loginError.textContent = '';
       ui.loginPass.value = '';
+      assistantHide();
       setTimeout(() => ui.loginUser.focus(), 50);
     }
 
@@ -3005,6 +3116,373 @@
         saveEditor(rtEditor);
         rtRange = null;
       });
+    });
+
+    // ======================= Asistente por IA =======================
+    const assistant = {
+      messages: [],        // historial que se envía a /api/agent (user/assistant)
+      caps: null,          // capacidades (agent/voice/coverSearch)
+      busy: false,
+      greeted: false,
+      recorder: null, recording: false, recChunks: [],
+      el: {}
+    };
+
+    const PROVIDER_LABEL = { gemini: 'Gemini', anthropic: 'Claude', openai: 'OpenAI' };
+
+    function assistantCache() {
+      assistant.el = {
+        fab: document.getElementById('assistantFab'),
+        panel: document.getElementById('assistantPanel'),
+        body: document.getElementById('assistantBody'),
+        input: document.getElementById('assistantInput'),
+        sendBtn: document.getElementById('assistantSendBtn'),
+        micBtn: document.getElementById('assistantMicBtn'),
+        attachBtn: document.getElementById('assistantAttachBtn'),
+        fileInput: document.getElementById('assistantFileInput'),
+        closeBtn: document.getElementById('assistantCloseBtn'),
+        clearBtn: document.getElementById('assistantClearBtn'),
+        provider: document.getElementById('assistantProvider'),
+        attachPreview: document.getElementById('assistantAttachPreview'),
+        disabledNote: document.getElementById('assistantDisabledNote'),
+      };
+    }
+
+    async function assistantInit() {
+      if (!assistant.el.fab) assistantCache();
+      assistant.el.fab.hidden = false;
+      try {
+        assistant.caps = await api('/api/ai/capabilities');
+      } catch (e) {
+        assistant.caps = { agent: false, voice: false, coverSearch: false, logoFetch: true, provider: null };
+      }
+      assistantApplyCaps();
+    }
+
+    function assistantHide() {
+      if (!assistant.el.fab) return;
+      assistant.el.fab.hidden = true;
+      assistant.el.panel.hidden = true;
+    }
+
+    function assistantApplyCaps() {
+      const c = assistant.caps || {};
+      assistant.el.provider.textContent = c.agent
+        ? (PROVIDER_LABEL[c.provider] || 'IA') + ' · rellena tu propuesta'
+        : 'IA sin configurar';
+      const micShown = !!c.voice;
+      assistant.el.micBtn.style.display = micShown ? '' : 'none';
+      if (!c.agent) {
+        assistant.el.input.disabled = true;
+        assistant.el.input.placeholder = 'Asistente no configurado';
+        assistant.el.disabledNote.hidden = false;
+        assistant.el.disabledNote.textContent = 'Añade una clave de IA (Gemini, Claude u OpenAI) en api/config.php para activar el chat. Adjuntar fotos sí funciona.';
+      } else {
+        assistant.el.input.disabled = false;
+        assistant.el.input.placeholder = 'Escribe o dicta…';
+        assistant.el.disabledNote.hidden = true;
+      }
+      assistantUpdateSendState();
+    }
+
+    function assistantOpen() {
+      assistant.el.panel.hidden = false;
+      assistant.el.fab.hidden = true;
+      if (!assistant.greeted) {
+        assistant.greeted = true;
+        const c = assistant.caps || {};
+        if (c.agent) {
+          assistantRenderMsg('bot', 'Hola 👋 Cuéntame la propuesta (cliente, servicios, precio, duración…) y la voy rellenando. Puedo buscar la imagen de portada y el logo del cliente, y también puedes adjuntar tus fotos con 📎.');
+        } else {
+          assistantRenderMsg('bot', 'El chat con IA aún no está configurado (falta la clave en config.php). Mientras tanto puedes adjuntar tus fotos con 📎 y colocarlas como portada o logo.');
+        }
+      }
+      setTimeout(() => assistant.el.input.focus(), 50);
+      assistantScroll();
+    }
+
+    function assistantClose() {
+      assistant.el.panel.hidden = true;
+      assistant.el.fab.hidden = false;
+    }
+
+    function assistantScroll() {
+      assistant.el.body.scrollTop = assistant.el.body.scrollHeight;
+    }
+
+    // Formato mínimo: **negrita** y `código`, con escape de HTML.
+    function assistantFormat(text) {
+      return escapeHTML(text)
+        .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+        .replace(/`([^`]+)`/g, '<code>$1</code>');
+    }
+
+    function assistantRenderMsg(kind, text) {
+      const div = document.createElement('div');
+      div.className = 'assistant-msg ' + (kind === 'user' ? 'user' : 'bot');
+      div.innerHTML = assistantFormat(text);
+      assistant.el.body.appendChild(div);
+      assistantScroll();
+      return div;
+    }
+
+    function assistantNote(text) {
+      const div = document.createElement('div');
+      div.className = 'assistant-note';
+      div.textContent = text;
+      assistant.el.body.appendChild(div);
+      assistantScroll();
+    }
+
+    function assistantShowTyping() {
+      const div = document.createElement('div');
+      div.className = 'assistant-typing';
+      div.innerHTML = '<span></span><span></span><span></span>';
+      assistant.el.body.appendChild(div);
+      assistantScroll();
+      return div;
+    }
+
+    function assistantSetBusy(v) {
+      assistant.busy = v;
+      assistantUpdateSendState();
+    }
+
+    function assistantUpdateSendState() {
+      const c = assistant.caps || {};
+      const hasText = assistant.el.input.value.trim().length > 0;
+      assistant.el.sendBtn.disabled = !(c.agent && hasText && !assistant.busy);
+    }
+
+    function assistantAutoGrow() {
+      const t = assistant.el.input;
+      t.style.height = 'auto';
+      t.style.height = Math.min(110, t.scrollHeight) + 'px';
+    }
+
+    // Snapshot ligero del estado (sin bytes de imagen) para dar contexto a la IA.
+    function assistantSnapshot() {
+      const s = proposalToSerializable();
+      return {
+        clientName: s.clientName, services: s.services, descriptions: s.descriptions,
+        price: s.price, priceNote: s.priceNote, duration: s.duration,
+        additionalInfo: s.additionalInfo, docType: s.docType,
+        optionBEnabled: s.optionBEnabled, optionBServices: s.optionBServices,
+        optionBPrice: s.optionBPrice, optionBDuration: s.optionBDuration,
+        hasHero: !!s.heroData, hasLogo: !!s.logoData
+      };
+    }
+
+    // Fusiona el patch del agente con la propuesta actual y la aplica.
+    async function assistantApplyPatch(patch) {
+      const cur = proposalToSerializable();
+      const merged = Object.assign({}, cur, patch);
+      if (patch.descriptions) merged.descriptions = Object.assign({}, cur.descriptions || {}, patch.descriptions);
+      if (patch.optionBDescriptions) merged.optionBDescriptions = Object.assign({}, cur.optionBDescriptions || {}, patch.optionBDescriptions);
+      await applyState(merged);
+      markDirty();
+    }
+
+    function assistantRenderImages(cover, logo) {
+      const groups = [];
+      if (cover && cover.length) groups.push({ kind: 'cover', label: 'Portada — elige una:', items: cover });
+      if (logo && logo.length) groups.push({ kind: 'logo', label: 'Logo — elige uno:', items: logo });
+      groups.forEach((g) => {
+        const wrap = document.createElement('div');
+        wrap.className = 'assistant-images';
+        const lbl = document.createElement('p');
+        lbl.className = 'lbl';
+        lbl.textContent = g.label;
+        wrap.appendChild(lbl);
+        const grid = document.createElement('div');
+        grid.className = 'grid';
+        g.items.slice(0, 9).forEach((it) => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'assistant-thumb';
+          btn.title = it.credit ? ('Foto: ' + it.credit) : (it.alt || '');
+          const img = document.createElement('img');
+          img.src = it.thumb || it.url;
+          img.alt = it.alt || '';
+          img.loading = 'lazy';
+          btn.appendChild(img);
+          btn.addEventListener('click', () => assistantPickImage(it.url || it.thumb, g.kind, btn));
+          grid.appendChild(btn);
+        });
+        wrap.appendChild(grid);
+        assistant.el.body.appendChild(wrap);
+      });
+      assistantScroll();
+    }
+
+    // Descarga la imagen elegida en el servidor y la coloca en portada/logo.
+    async function assistantPickImage(url, kind, btn) {
+      if (!url || btn.classList.contains('busy')) return;
+      btn.classList.add('busy');
+      try {
+        const data = await api('/api/fetch-image', { method: 'POST', body: { url } });
+        const cur = proposalToSerializable();
+        if (kind === 'logo') cur.logoData = data.dataUrl; else cur.heroData = data.dataUrl;
+        await applyState(cur);
+        markDirty();
+        assistantNote(kind === 'logo' ? 'Logo actualizado ✓' : 'Portada actualizada ✓');
+      } catch (err) {
+        assistantNote('No se pudo usar esa imagen: ' + (err.message || ''));
+      } finally {
+        btn.classList.remove('busy');
+      }
+    }
+
+    async function assistantSend() {
+      const text = assistant.el.input.value.trim();
+      if (!text || assistant.busy) return;
+      if (!assistant.caps || !assistant.caps.agent) return;
+      assistant.messages.push({ role: 'user', content: text });
+      assistantRenderMsg('user', text);
+      assistant.el.input.value = '';
+      assistantAutoGrow();
+      assistantSetBusy(true);
+      const typing = assistantShowTyping();
+      try {
+        const data = await api('/api/agent', { method: 'POST', body: {
+          messages: assistant.messages, proposal: assistantSnapshot()
+        }});
+        typing.remove();
+        if (data.reply) {
+          assistant.messages.push({ role: 'assistant', content: data.reply });
+          assistantRenderMsg('bot', data.reply);
+        }
+        if (data.patch && Object.keys(data.patch).length) await assistantApplyPatch(data.patch);
+        if ((data.cover && data.cover.length) || (data.logo && data.logo.length)) {
+          assistantRenderImages(data.cover || [], data.logo || []);
+        }
+      } catch (err) {
+        typing.remove();
+        assistantRenderMsg('bot', 'Ups, no pude completar la petición: ' + (err.message || 'error de conexión') + '.');
+      } finally {
+        assistantSetBusy(false);
+        assistant.el.input.focus();
+      }
+    }
+
+    // ---- adjuntar foto (funciona aunque no haya IA) ----
+    function assistantShowAttach(dataUrl) {
+      const p = assistant.el.attachPreview;
+      p.hidden = false;
+      p.innerHTML = '';
+      const img = document.createElement('img');
+      img.src = dataUrl;
+      p.appendChild(img);
+      const ask = document.createElement('span');
+      ask.textContent = 'Usar como:';
+      p.appendChild(ask);
+      const mk = (label, kind) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.textContent = label;
+        b.style.color = '#111';
+        b.style.fontWeight = '600';
+        b.addEventListener('click', async () => {
+          const cur = proposalToSerializable();
+          if (kind === 'logo') cur.logoData = dataUrl; else cur.heroData = dataUrl;
+          await applyState(cur);
+          markDirty();
+          p.hidden = true; p.innerHTML = '';
+          assistantNote(kind === 'logo' ? 'Logo actualizado ✓' : 'Portada actualizada ✓');
+        });
+        p.appendChild(b);
+      };
+      mk('Portada', 'cover');
+      mk('Logo', 'logo');
+      const rm = document.createElement('button');
+      rm.type = 'button';
+      rm.textContent = '✕';
+      rm.addEventListener('click', () => { p.hidden = true; p.innerHTML = ''; });
+      p.appendChild(rm);
+    }
+
+    // ---- voz (grabación -> /api/transcribe) ----
+    async function assistantToggleMic() {
+      if (!assistant.caps || !assistant.caps.voice) return;
+      if (assistant.recording) { try { assistant.recorder.stop(); } catch (e) {} return; }
+      if (!navigator.mediaDevices || !window.MediaRecorder) {
+        assistantNote('Este navegador no permite grabar audio.');
+        return;
+      }
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const mime = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm'
+          : (MediaRecorder.isTypeSupported('audio/mp4') ? 'audio/mp4' : '');
+        assistant.recorder = mime ? new MediaRecorder(stream, { mimeType: mime }) : new MediaRecorder(stream);
+        assistant.recChunks = [];
+        assistant.recorder.ondataavailable = (e) => { if (e.data && e.data.size) assistant.recChunks.push(e.data); };
+        assistant.recorder.onstop = async () => {
+          stream.getTracks().forEach((t) => t.stop());
+          assistant.recording = false;
+          assistant.el.micBtn.classList.remove('rec');
+          assistant.el.micBtn.title = 'Hablar';
+          const type = assistant.recorder.mimeType || 'audio/webm';
+          const blob = new Blob(assistant.recChunks, { type });
+          if (blob.size) await assistantTranscribe(blob, type);
+        };
+        assistant.recorder.start();
+        assistant.recording = true;
+        assistant.el.micBtn.classList.add('rec');
+        assistant.el.micBtn.title = 'Detener y transcribir';
+      } catch (err) {
+        assistantNote('No se pudo acceder al micrófono. Revisa los permisos del navegador.');
+      }
+    }
+
+    async function assistantTranscribe(blob, type) {
+      assistantSetBusy(true);
+      const typing = assistantShowTyping();
+      try {
+        const ext = type.includes('mp4') ? 'mp4' : (type.includes('ogg') ? 'ogg' : 'webm');
+        const fd = new FormData();
+        fd.append('audio', blob, 'audio.' + ext);
+        const res = await fetch('/api/transcribe', { method: 'POST', credentials: 'same-origin', body: fd });
+        let data = null; try { data = await res.json(); } catch (e) {}
+        typing.remove();
+        if (!res.ok) throw new Error((data && data.error) || ('Error ' + res.status));
+        if (data && data.text) {
+          const t = assistant.el.input;
+          t.value = (t.value ? t.value + ' ' : '') + data.text;
+          assistantAutoGrow();
+          assistantUpdateSendState();
+          t.focus();
+        } else {
+          assistantNote('No se entendió el audio, inténtalo de nuevo.');
+        }
+      } catch (err) {
+        typing.remove();
+        assistantNote('No se pudo transcribir: ' + (err.message || ''));
+      } finally {
+        assistantSetBusy(false);
+      }
+    }
+
+    // ---- wiring del asistente ----
+    assistantCache();
+    assistant.el.fab.addEventListener('click', assistantOpen);
+    assistant.el.closeBtn.addEventListener('click', assistantClose);
+    assistant.el.clearBtn.addEventListener('click', () => {
+      assistant.messages = [];
+      assistant.el.body.innerHTML = '';
+      assistant.greeted = false;
+      assistantOpen();
+    });
+    assistant.el.sendBtn.addEventListener('click', assistantSend);
+    assistant.el.input.addEventListener('input', () => { assistantAutoGrow(); assistantUpdateSendState(); });
+    assistant.el.input.addEventListener('keydown', (ev) => {
+      if (ev.key === 'Enter' && !ev.shiftKey) { ev.preventDefault(); assistantSend(); }
+    });
+    assistant.el.micBtn.addEventListener('click', assistantToggleMic);
+    assistant.el.attachBtn.addEventListener('click', () => assistant.el.fileInput.click());
+    assistant.el.fileInput.addEventListener('change', (ev) => {
+      const f = ev.target.files && ev.target.files[0];
+      ev.target.value = '';
+      if (f) readFileAsDataURL(f, (data) => assistantShowAttach(data));
     });
 
     // ---- arranque ----

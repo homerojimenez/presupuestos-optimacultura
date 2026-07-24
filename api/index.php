@@ -10,6 +10,7 @@ set_exception_handler(function ($e) {
 
 require __DIR__ . '/db.php';
 require __DIR__ . '/lib.php';
+require __DIR__ . '/ai.php';
 
 $config = get_config();
 session_set_cookie_params([
@@ -221,6 +222,44 @@ if (preg_match('#^/api/proposals/(\d+)$#', $path, $m)) {
     $pdo->prepare('DELETE FROM proposals WHERE id = ?')->execute([$id]);
     json_out(200, ['ok' => true]);
   }
+}
+
+// ---- asistente por IA ----
+if ($path === '/api/ai/capabilities' && $method === 'GET') {
+  require_auth($user);
+  json_out(200, ai_capabilities());
+}
+
+if ($path === '/api/agent' && $method === 'POST') {
+  require_auth($user);
+  $b = read_json_body();
+  $messages = is_array($b['messages'] ?? null) ? $b['messages'] : [];
+  $proposal = is_array($b['proposal'] ?? null) ? $b['proposal'] : [];
+  $result = run_agent($messages, $proposal);
+  if (isset($result['error'])) json_out(400, $result);
+  json_out(200, $result);
+}
+
+if ($path === '/api/transcribe' && $method === 'POST') {
+  require_auth($user);
+  $f = $_FILES['audio'] ?? null;
+  if (!$f || ($f['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK || !is_uploaded_file($f['tmp_name'])) {
+    json_out(400, ['error' => 'No se recibió ningún audio']);
+  }
+  if (($f['size'] ?? 0) > 25 * 1024 * 1024) json_out(400, ['error' => 'El audio es demasiado grande (máx. 25 MB)']);
+  $result = ai_transcribe($f['tmp_name'], $f['name'] ?? 'audio.webm', $f['type'] ?? 'audio/webm');
+  if (isset($result['error'])) json_out(400, $result);
+  json_out(200, $result);
+}
+
+if ($path === '/api/fetch-image' && $method === 'POST') {
+  require_auth($user);
+  $b = read_json_body();
+  $url = trim($b['url'] ?? '');
+  if ($url === '') json_out(400, ['error' => 'Falta la URL de la imagen']);
+  $result = ai_fetch_image($url);
+  if (isset($result['error'])) json_out(400, $result);
+  json_out(200, $result);
 }
 
 json_out(404, ['error' => 'Endpoint no encontrado']);

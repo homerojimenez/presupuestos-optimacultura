@@ -36,7 +36,29 @@ datos SQLite e imágenes subidas— se guardan en `data/` (no versionado).
 - **Datos:** propuestas en SQLite; imágenes como ficheros en `data/uploads/`
   (protegidas por sesión). Histórico compartido con búsqueda por nombre y servicios.
 
+## Asistente por IA (opcional)
+
+Un chat flotante ("Asistente", abajo a la derecha) permite **rellenar la propuesta
+dictando o escribiendo** en lenguaje natural. Es agéntico: además de completar
+campos (cliente, servicios, precio, duración, descripciones…), puede **buscar la
+imagen de portada** en bancos con licencia comercial y **el logo del cliente** desde
+su web, mostrándolos como candidatos para que elijas. También puedes **adjuntar tus
+propias fotos** (📎) y colocarlas como portada o logo, y **dictar por voz** (🎤).
+
+Todo el "cerebro" corre en el servidor (`api/ai.php`): las claves de IA se guardan
+en `api/config.php` (sección `'ai'`) y **nunca se envían al navegador**. Cada función
+se activa cuando su clave está presente; si falta, el chat lo avisa con claridad.
+Soporta **Gemini, Claude (Anthropic) u OpenAI** como motor. Detalle de claves en
+[`DEPLOY.md`](DEPLOY.md) (paso 4b).
+
+Las descargas de imágenes externas pasan por una guarda anti-SSRF (solo IPs
+públicas, con límite de tamaño y verificación de tipo).
+
 ## Historial de versiones
+
+**v5.1.0** — Asistente por IA: chat con relleno por voz/texto, búsqueda de logo
+e imágenes de portada, y adjuntar fotos. Motor configurable (Gemini/Claude/OpenAI),
+claves solo en servidor.
 
 **v5.0.0** — Backend real con base de datos:
 - Guardado de propuestas en histórico compartido (SQLite).

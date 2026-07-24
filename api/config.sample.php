@@ -27,4 +27,35 @@ return [
 
   // Pon true cuando sirvas por HTTPS (cookies de sesión con flag Secure).
   'secure_cookies' => true,
+
+  // --- Asistente por IA (opcional) -------------------------------------------
+  // Cada capacidad se activa SOLA cuando su clave está presente. Si dejas una
+  // clave vacía, esa función se desactiva y el chat lo avisa con claridad.
+  // NUNCA se envían estas claves al navegador: solo se usan en el servidor.
+  'ai' => [
+    // Motor del agente. Pon la clave del proveedor que uses; si tienes varias,
+    // manda 'provider' (en 'auto' se prefiere Anthropic > OpenAI > Gemini).
+    'provider'          => 'auto',   // 'auto' | 'anthropic' | 'openai' | 'gemini'
+    'anthropic_api_key' => '',
+    'anthropic_model'   => 'claude-sonnet-4-5',
+    'openai_api_key'    => '',
+    'openai_model'      => 'gpt-4o',
+    'gemini_api_key'    => '',        // https://aistudio.google.com/apikey
+    'gemini_model'      => 'gemini-flash-latest',
+
+    // Transcripción de voz. Con clave de OpenAI usa Whisper; si no hay OpenAI
+    // pero sí Gemini, transcribe con Gemini (audio nativo).
+    'whisper_model'     => 'whisper-1',
+
+    // Búsqueda de imágenes de portada (uso comercial permitido). Clave gratuita.
+    'pexels_api_key'    => '',        // https://www.pexels.com/api/
+    'unsplash_access_key' => '',      // opcional: https://unsplash.com/developers
+
+    // Logo desde la web del cliente: se extrae de la propia web (og:image,
+    // apple-touch-icon, favicon). Opcional: token de logo.dev para más calidad.
+    'logodev_token'     => '',        // opcional: https://logo.dev
+
+    // Límites de seguridad para descargar imágenes externas al servidor.
+    'max_image_bytes'   => 8388608,   // 8 MB
+  ],
 ];
