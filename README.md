@@ -54,7 +54,28 @@ Soporta **Gemini, Claude (Anthropic) u OpenAI** como motor. Detalle de claves en
 Las descargas de imágenes externas pasan por una guarda anti-SSRF (solo IPs
 públicas, con límite de tamaño y verificación de tipo).
 
+## Personalización de la estación VR
+
+La página de realidad virtual se compone en cliente sobre la 15B (la misma página
+sin estación) a partir de la **foto calibrada** de la estación (`assets/pages/estacion-vr.webp`):
+
+- **Color del mueble** — paleta de seis colores más color libre, en el bloque
+  "Personalización de la estación" (aparece al marcar el servicio OptimaVR). El color
+  cae a la vez sobre las tres caras blancas (frontal, tapa y lateral): los polígonos
+  de las caras lo recortan y la **máscara del blanco** (`estacion-vr-mask.png`) hace
+  que solo toque el metal, dejando intactos madera, pantalla, soporte y cables. La
+  mezcla es `multiply`, así respeta sombras y reflejos.
+- **Logo del cliente** — se estampa en el frontal con una **homografía real**: el
+  escorzo es exacto en todo el plano, no una aproximación por triángulos.
+- Sin logo y en color original se usa la página estándar (15A).
+
+Las coordenadas de las caras están medidas sobre esa misma foto y son las mismas que
+usa la landing de estaciones VR.
+
 ## Historial de versiones
+
+**v5.2.0** — Personalización de la estación VR: color del mueble y logo del cliente
+en el frontal con perspectiva real (homografía), sobre la foto calibrada de la estación.
 
 **v5.1.0** — Asistente por IA: chat con relleno por voz/texto, búsqueda de logo
 e imágenes de portada, y adjuntar fotos. Motor configurable (Gemini/Claude/OpenAI),

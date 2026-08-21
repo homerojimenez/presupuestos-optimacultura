@@ -407,6 +407,72 @@
       font-size: 0.8rem;
       line-height: 1.35;
     }
+
+    /* Personalización de la estación VR (color del mueble) */
+    .vr-config {
+      margin-top: 10px;
+      padding: 14px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+    }
+    .vr-config.is-hidden { display: none; }
+    .vr-swatches {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(58px, 1fr));
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .vr-swatch {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
+      margin: 0;
+      font-weight: 500;
+    }
+    .vr-swatch input[type="radio"] {
+      position: absolute;
+      opacity: 0;
+      width: 1px;
+      height: 1px;
+      margin: 0;
+    }
+    .vr-swatch-dot {
+      width: 100%;
+      aspect-ratio: 1;
+      border-radius: 12px;
+      background: var(--c, #fff);
+      border: 1px solid var(--line);
+      transition: transform 150ms ease, box-shadow 150ms ease;
+    }
+    /* La muestra "Original" enseña que es el blanco de fábrica. */
+    .vr-swatch[data-vr-original] .vr-swatch-dot {
+      background:
+        linear-gradient(135deg, transparent 46%, var(--line) 46%, var(--line) 54%, transparent 54%),
+        #fff;
+    }
+    .vr-swatch-wheel {
+      background: conic-gradient(from 0deg, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00);
+    }
+    .vr-swatch-label { font-size: 0.68rem; color: var(--muted); }
+    .vr-swatch:hover .vr-swatch-dot { transform: translateY(-2px); box-shadow: var(--ui-shadow); }
+    .vr-swatch:has(:checked) .vr-swatch-dot { box-shadow: 0 0 0 2px #fff, 0 0 0 4px #111; }
+    .vr-swatch:has(:checked) .vr-swatch-label { color: #111; font-weight: 600; }
+    .vr-swatch:has(:focus-visible) .vr-swatch-dot { outline: 2px solid #111; outline-offset: 3px; }
+    /* El input de color nativo cubre su muestra para abrir el selector al pulsar. */
+    .vr-swatch-custom input[type="color"] {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      padding: 0;
+      border: 0;
+      opacity: 0;
+      cursor: pointer;
+    }
     .actions { display: grid; gap: 10px; margin-top: 14px; }
     button {
       width: 100%;
@@ -1024,6 +1090,48 @@
           <div class="check-grid">
             <label class="check-item"><input type="checkbox" data-service="vr_estaciones"><span>OptimaVR (estaciones + contenidos 3D)</span></label>
           </div>
+          <div id="vrStationConfig" class="vr-config is-hidden">
+            <p class="card-label">Personalización de la estación</p>
+            <div class="vr-swatches">
+              <label class="vr-swatch" data-vr-original>
+                <input type="radio" name="vrColor" value="original" checked>
+                <span class="vr-swatch-dot" aria-hidden="true"></span>
+                <span class="vr-swatch-label">Original</span>
+              </label>
+              <label class="vr-swatch">
+                <input type="radio" name="vrColor" value="#1a1a1a">
+                <span class="vr-swatch-dot" style="--c:#1a1a1a" aria-hidden="true"></span>
+                <span class="vr-swatch-label">Negro</span>
+              </label>
+              <label class="vr-swatch">
+                <input type="radio" name="vrColor" value="#31473a">
+                <span class="vr-swatch-dot" style="--c:#31473a" aria-hidden="true"></span>
+                <span class="vr-swatch-label">Verde</span>
+              </label>
+              <label class="vr-swatch">
+                <input type="radio" name="vrColor" value="#2b4a6f">
+                <span class="vr-swatch-dot" style="--c:#2b4a6f" aria-hidden="true"></span>
+                <span class="vr-swatch-label">Azul</span>
+              </label>
+              <label class="vr-swatch">
+                <input type="radio" name="vrColor" value="#6b2f2f">
+                <span class="vr-swatch-dot" style="--c:#6b2f2f" aria-hidden="true"></span>
+                <span class="vr-swatch-label">Burdeos</span>
+              </label>
+              <label class="vr-swatch">
+                <input type="radio" name="vrColor" value="#c9a227">
+                <span class="vr-swatch-dot" style="--c:#c9a227" aria-hidden="true"></span>
+                <span class="vr-swatch-label">Mostaza</span>
+              </label>
+              <label class="vr-swatch vr-swatch-custom">
+                <input type="radio" name="vrColor" value="custom">
+                <span class="vr-swatch-dot vr-swatch-wheel" aria-hidden="true"></span>
+                <span class="vr-swatch-label">Otro…</span>
+                <input id="vrColorCustom" type="color" value="#31473a" aria-label="Elegir otro color para el mueble de la estación">
+              </label>
+            </div>
+            <p class="logo-tool-note">El color viste el mueble (frontal, tapa y lateral) y el logo del cliente se imprime en el frontal con la perspectiva de la foto. Sin logo y en color original se usa la estación estándar de ÓptimaCultura.</p>
+          </div>
         </div>
         <div class="service-group">
           <div class="service-group-title">Contenidos audiovisuales</div>
@@ -1282,6 +1390,8 @@
       logoAspect: 3,
       logoNativeAspect: 3,
       additionalInfo: '',
+      // Color del mueble de la estación VR: 'original' o un hex '#rrggbb'.
+      vrColor: 'original',
       // Tipo de documento: 'presupuesto' (general) | 'proyeccion' (económica)
       docType: 'presupuesto',
       // Contenido de la proyección económica
@@ -1298,6 +1408,8 @@
       logoInput: document.getElementById('logoInput'),
       logoBgInput: document.getElementById('logoBgInput'),
       logoRemoveBgBtn: document.getElementById('logoRemoveBgBtn'),
+      vrStationConfig: document.getElementById('vrStationConfig'),
+      vrColorCustom: document.getElementById('vrColorCustom'),
       clientNameInput: document.getElementById('clientNameInput'),
       heroThumb: document.getElementById('heroThumb'),
       logoThumb: document.getElementById('logoThumb'),
@@ -1739,25 +1851,53 @@
       return budgetPageMarkup(label, items, state.price, state.priceNote, state.duration, 'A');
     }
 
-    // --- Estación VR (bloque D) ---
-    // Página VR con logo del cliente: sobre la 15B (sin estación) se compone la
-    // estación y se warpea el logo del cliente sobre el panel frontal-derecho
-    // con perspectiva y modo multiply (efecto "impreso"). Sin logo -> 15A.
+    /* --- Estación VR (bloque D) -----------------------------------------
+     * Personalización de la estación sobre la página 15B (la misma lógica que
+     * la landing de estaciones VR, portada aquí a <canvas> para el PDF):
+     *
+     *   1) Color del mueble → recolorea a la vez las TRES caras blancas
+     *      (frontal, superior y lateral). Dos cosas lo hacen limpio:
+     *        · los polígonos de VR_COLOR_FACES recortan el color a esas caras,
+     *          dejando fuera la madera y el arco de las gafas;
+     *        · la MÁSCARA del blanco (estacion-vr-mask.png) hace que dentro de
+     *          cada cara el color caiga SOLO sobre el metal blanco — la pantalla
+     *          (oscura), el soporte amarillo y los cables quedan intactos.
+     *      La mezcla es multiply, así el color respeta sombras y reflejos.
+     *   2) Logo del cliente → se proyecta sobre el FRONTAL con una homografía
+     *      real (warpPerspective), no con dos triángulos afines: el escorzo es
+     *      exacto en todo el plano y las rectas siguen siendo rectas.
+     *
+     * Las caras están medidas sobre esta misma foto en el proyecto de la
+     * landing; son fracciones de la imagen en orden TL/TR/BR/BL.
+     * Sin logo y con el color original -> se usa la 15A (estación estándar).
+     */
     const VR_PAGE_W = 1190;
     const VR_PAGE_H = 1684;
-    const VR_STATION_SRC = 'assets/pages/estacion.png';
+    const VR_STATION_SRC = 'assets/pages/estacion-vr.webp';
+    const VR_STATION_MASK = 'assets/pages/estacion-vr-mask.png';
     const VR_STATION_BG = 'assets/pages/15B.webp';
-    // Colocación de la estación dentro de la página (px sobre 1190x1684).
-    const VR_STATION_PLACEMENT = { x: -20, y: 80, w: 1250 };
-    // Cuadrado frontal donde va el logo (calibrado con las líneas de fuga del
-    // usuario): un único punto de fuga (verticales verticales). FRACCIONES de la imagen.
-    const VR_STATION_QUAD = {
-      tl: { x: 0.5610, y: 0.5570 },
-      tr: { x: 0.7690, y: 0.5608 },
-      br: { x: 0.7690, y: 0.7173 },
-      bl: { x: 0.5610, y: 0.8354 }
-    };
-    const vrStationCache = { version: -1, url: '', promise: null };
+    // Colocación de la estación dentro de la página (px sobre 1190x1684),
+    // centrada en la tarjeta blanca de la 15B (x 64–1125, y 134–924).
+    const VR_STATION_PLACEMENT = { x: 98, y: 153, w: 963 };
+    // Caras blancas a recolorear (fracciones de la imagen, TL/TR/BR/BL).
+    // El frontal es además el plano del logo.
+    const VR_FACE_FRONTAL = [[0.564, 0.446], [0.901, 0.353], [0.895, 0.797], [0.564, 0.963]];
+    const VR_FACE_SUPERIOR = [[0.426, 0.408], [0.793, 0.310], [0.912, 0.352], [0.561, 0.454]];
+    const VR_FACE_LATERAL = [[0.426, 0.408], [0.564, 0.452], [0.570, 0.970], [0.429, 0.888]];
+    const VR_COLOR_FACES = [VR_FACE_FRONTAL, VR_FACE_SUPERIOR, VR_FACE_LATERAL];
+    // Caja del logo dentro del plano del frontal, en coordenadas (u,v) del
+    // rectángulo completo de la foto: centrada en 50%/49%, de 46%x40%.
+    const VR_LOGO_BOX = { u0: 0.27, u1: 0.73, v0: 0.29, v1: 0.69 };
+    // Paleta de colores de mueble ofrecida en el formulario.
+    const VR_COLORS = [
+      { value: 'original', label: 'Original', swatch: '#ffffff' },
+      { value: '#1a1a1a', label: 'Negro' },
+      { value: '#31473a', label: 'Verde' },
+      { value: '#2b4a6f', label: 'Azul' },
+      { value: '#6b2f2f', label: 'Burdeos' },
+      { value: '#c9a227', label: 'Mostaza' }
+    ];
+    const vrStationCache = { key: '', url: '', promise: null };
     const imagePromiseCache = new Map();
 
     function loadImageCached(src) {
@@ -1774,14 +1914,30 @@
     }
 
     function resetVrComposites() {
-      vrStationCache.version = -1;
+      vrStationCache.key = '';
       vrStationCache.url = '';
       vrStationCache.promise = null;
     }
 
-    // Precalienta la composición de la estación VR cuando procede (hay logo).
+    // Color de mueble efectivo: '' si va en su blanco original.
+    function getVrStationColor() {
+      const c = state.vrColor || 'original';
+      return c === 'original' ? '' : c;
+    }
+
+    // ¿Hay algo que personalizar? Si no, la página VR es la 15A de siempre.
+    function isVrStationCustomized() {
+      return !!(getVrLogoSrc() || getVrStationColor());
+    }
+
+    // Clave de caché de la composición: cambia con el logo y con el color.
+    function vrStationKey() {
+      return `${state.logoVersion}|${getVrStationColor() || 'original'}`;
+    }
+
+    // Precalienta la composición de la estación VR cuando procede.
     function warmVrComposites() {
-      if (getVrLogoSrc() && buildSequence().some((entry) => entry.type === 'vr')) ensureVrStation();
+      if (isVrStationCustomized() && buildSequence().some((entry) => entry.type === 'vr')) ensureVrStation();
     }
 
     async function trimLogoDataURL(src) {
@@ -1907,36 +2063,140 @@
       return out.toDataURL('image/png');
     }
 
-    function lerpPoint(a, b, t) {
-      return { x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t };
-    }
-
-    function quadPoint(quad, u, v) {
-      const top = lerpPoint(quad.tl, quad.tr, u);
-      const bottom = lerpPoint(quad.bl, quad.br, u);
-      return lerpPoint(top, bottom, v);
-    }
-
-    // Cuadrilátero interior que preserva el aspecto del logo, centrado en el panel.
-    function fitLogoQuad(panelQuad, logoAspect) {
-      const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
-      const quadW = (dist(panelQuad.tl, panelQuad.tr) + dist(panelQuad.bl, panelQuad.br)) / 2;
-      const quadH = (dist(panelQuad.tl, panelQuad.bl) + dist(panelQuad.tr, panelQuad.br)) / 2;
-      const quadAspect = quadW / Math.max(1, quadH);
-      let u0 = 0, u1 = 1, v0 = 0, v1 = 1;
-      if (logoAspect > quadAspect) {
-        const vh = quadAspect / logoAspect; // el logo es más ancho -> ajusta al ancho
-        v0 = (1 - vh) / 2; v1 = v0 + vh;
+    /* --- Perspectiva -----------------------------------------------------
+     * Homografía del cuadrado unidad al cuadrilátero [tl, tr, br, bl] (px).
+     * Devuelve los coeficientes de la matriz [a b c; d e f; g h 1], de forma
+     * que (u,v) -> ((au+bv+c)/(gu+hv+1), (du+ev+f)/(gu+hv+1)).
+     * Es la proyección correcta: interpolar linealmente entre esquinas (lerp)
+     * NO lo es y deforma el escorzo.
+     */
+    function quadHomography(quad) {
+      const [p0, p1, p2, p3] = quad;
+      const dx1 = p1[0] - p2[0], dx2 = p3[0] - p2[0], sx = p0[0] - p1[0] + p2[0] - p3[0];
+      const dy1 = p1[1] - p2[1], dy2 = p3[1] - p2[1], sy = p0[1] - p1[1] + p2[1] - p3[1];
+      let a, b, d, e, g, h;
+      if (Math.abs(sx) < 1e-9 && Math.abs(sy) < 1e-9) {
+        // Caso degenerado: el cuadrilátero es un paralelogramo (afín puro).
+        g = 0; h = 0;
+        a = p1[0] - p0[0]; b = p2[0] - p1[0];
+        d = p1[1] - p0[1]; e = p2[1] - p1[1];
       } else {
-        const uw = logoAspect / quadAspect; // el logo es más alto -> ajusta al alto
-        u0 = (1 - uw) / 2; u1 = u0 + uw;
+        const den = dx1 * dy2 - dx2 * dy1;
+        g = (sx * dy2 - dx2 * sy) / den;
+        h = (dx1 * sy - sx * dy1) / den;
+        a = p1[0] - p0[0] + g * p1[0];
+        b = p3[0] - p0[0] + h * p3[0];
+        d = p1[1] - p0[1] + g * p1[1];
+        e = p3[1] - p0[1] + h * p3[1];
       }
-      return {
-        tl: quadPoint(panelQuad, u0, v0),
-        tr: quadPoint(panelQuad, u1, v0),
-        br: quadPoint(panelQuad, u1, v1),
-        bl: quadPoint(panelQuad, u0, v1)
+      return { a, b, c: p0[0], d, e, f: p0[1], g, h };
+    }
+
+    // Punto (u,v) del plano proyectado a píxeles de la página.
+    function projectPoint(m, u, v) {
+      const w = m.g * u + m.h * v + 1;
+      return [(m.a * u + m.b * v + m.c) / w, (m.d * u + m.e * v + m.f) / w];
+    }
+
+    // Inversa de la homografía, como matriz 3x3 (para el mapeo inverso).
+    function invertHomography(m) {
+      const A = [[m.a, m.b, m.c], [m.d, m.e, m.f], [m.g, m.h, 1]];
+      const det = A[0][0] * (A[1][1] * A[2][2] - A[1][2] * A[2][1])
+        - A[0][1] * (A[1][0] * A[2][2] - A[1][2] * A[2][0])
+        + A[0][2] * (A[1][0] * A[2][1] - A[1][1] * A[2][0]);
+      const cof = (r, c) => {
+        const i1 = (r + 1) % 3, i2 = (r + 2) % 3, j1 = (c + 1) % 3, j2 = (c + 2) % 3;
+        return (A[j1][i1] * A[j2][i2] - A[j1][i2] * A[j2][i1]) / det;
       };
+      return [
+        [cof(0, 0), cof(0, 1), cof(0, 2)],
+        [cof(1, 0), cof(1, 1), cof(1, 2)],
+        [cof(2, 0), cof(2, 1), cof(2, 2)]
+      ];
+    }
+
+    /* Dibuja una imagen deformada al cuadrilátero de destino con perspectiva
+     * exacta. En vez de partir el quad en triángulos afines (que quiebra el
+     * escorzo en la diagonal), recorre los píxeles de destino y busca su
+     * origen con la homografía inversa: muestreo bilineal + 2x2 de
+     * supersampling para que los bordes queden suaves.
+     */
+    function warpPerspective(ctx, img, quad) {
+      const m = quadHomography(quad);
+      const inv = invertHomography(m);
+      const xs = quad.map((p) => p[0]);
+      const ys = quad.map((p) => p[1]);
+      const x0 = Math.max(0, Math.floor(Math.min.apply(null, xs)) - 1);
+      const x1 = Math.min(ctx.canvas.width, Math.ceil(Math.max.apply(null, xs)) + 1);
+      const y0 = Math.max(0, Math.floor(Math.min.apply(null, ys)) - 1);
+      const y1 = Math.min(ctx.canvas.height, Math.ceil(Math.max.apply(null, ys)) + 1);
+      const bw = x1 - x0, bh = y1 - y0;
+      if (bw <= 0 || bh <= 0) return;
+
+      // Reescala el origen al tamaño aproximado de destino: así el muestreo
+      // bilineal no produce aliasing al reducir un logo grande.
+      const dist = (p, q) => Math.hypot(p[0] - q[0], p[1] - q[1]);
+      const tw = Math.max(2, Math.round((dist(quad[0], quad[1]) + dist(quad[3], quad[2])) / 2 * 1.4));
+      const th = Math.max(2, Math.round((dist(quad[0], quad[3]) + dist(quad[1], quad[2])) / 2 * 1.4));
+      const scaled = document.createElement('canvas');
+      scaled.width = tw;
+      scaled.height = th;
+      const sctx = scaled.getContext('2d', { willReadFrequently: true });
+      sctx.imageSmoothingEnabled = true;
+      sctx.imageSmoothingQuality = 'high';
+      sctx.drawImage(img, 0, 0, tw, th);
+      const src = sctx.getImageData(0, 0, tw, th).data;
+
+      const out = ctx.createImageData(bw, bh);
+      const dst = out.data;
+      const SS = 2;                 // muestras por eje
+      const norm = 1 / (SS * SS);
+      for (let py = 0; py < bh; py += 1) {
+        for (let px = 0; px < bw; px += 1) {
+          let r = 0, g = 0, b = 0, alpha = 0;
+          for (let sy = 0; sy < SS; sy += 1) {
+            for (let sx = 0; sx < SS; sx += 1) {
+              const X = x0 + px + (sx + 0.5) / SS;
+              const Y = y0 + py + (sy + 0.5) / SS;
+              const w = inv[2][0] * X + inv[2][1] * Y + inv[2][2];
+              const u = (inv[0][0] * X + inv[0][1] * Y + inv[0][2]) / w;
+              const v = (inv[1][0] * X + inv[1][1] * Y + inv[1][2]) / w;
+              if (u < 0 || u > 1 || v < 0 || v > 1) continue;
+              const fx = u * (tw - 1), fy = v * (th - 1);
+              const ix = Math.floor(fx), iy = Math.floor(fy);
+              const dx = fx - ix, dy = fy - iy;
+              const ix2 = Math.min(tw - 1, ix + 1), iy2 = Math.min(th - 1, iy + 1);
+              const i00 = (iy * tw + ix) * 4, i10 = (iy * tw + ix2) * 4;
+              const i01 = (iy2 * tw + ix) * 4, i11 = (iy2 * tw + ix2) * 4;
+              // Pesos bilineales ponderados por alfa (evita halos del borde).
+              const a00 = src[i00 + 3] * (1 - dx) * (1 - dy);
+              const a10 = src[i10 + 3] * dx * (1 - dy);
+              const a01 = src[i01 + 3] * (1 - dx) * dy;
+              const a11 = src[i11 + 3] * dx * dy;
+              const aa = a00 + a10 + a01 + a11;
+              if (aa > 0) {
+                const k = (aa / 255) / aa;
+                r += (src[i00] * a00 + src[i10] * a10 + src[i01] * a01 + src[i11] * a11) * k;
+                g += (src[i00 + 1] * a00 + src[i10 + 1] * a10 + src[i01 + 1] * a01 + src[i11 + 1] * a11) * k;
+                b += (src[i00 + 2] * a00 + src[i10 + 2] * a10 + src[i01 + 2] * a01 + src[i11 + 2] * a11) * k;
+                alpha += aa / 255;
+              }
+            }
+          }
+          const A = alpha * norm;
+          if (A <= 0) continue;
+          const idx = (py * bw + px) * 4;
+          dst[idx] = Math.round(r * norm / A);
+          dst[idx + 1] = Math.round(g * norm / A);
+          dst[idx + 2] = Math.round(b * norm / A);
+          dst[idx + 3] = Math.round(A * 255);
+        }
+      }
+      const layer = document.createElement('canvas');
+      layer.width = bw;
+      layer.height = bh;
+      layer.getContext('2d').putImageData(out, 0, 0);
+      ctx.drawImage(layer, x0, y0);
     }
 
     function trimTransparentBounds(img) {
@@ -1972,90 +2232,80 @@
       };
     }
 
-    async function buildPreparedLogoImage(logoImg) {
-      const bounds = trimTransparentBounds(logoImg);
-      const srcW = bounds.width;
-      const srcH = bounds.height;
-      const maxW = 1800;
-      const maxH = 1800;
-      const scale = Math.min(maxW / srcW, maxH / srcH, 1.8);
-      const drawW = Math.max(1, Math.round(srcW * scale));
-      const drawH = Math.max(1, Math.round(srcH * scale));
-      const pad = 24;
-      const canvas = document.createElement('canvas');
-      canvas.width = drawW + pad * 2;
-      canvas.height = drawH + pad * 2;
-      const ctx = canvas.getContext('2d');
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.imageSmoothingEnabled = true;
-      ctx.imageSmoothingQuality = 'high';
-      ctx.drawImage(
-        logoImg,
-        bounds.x,
-        bounds.y,
-        bounds.width,
-        bounds.height,
-        pad,
-        pad,
-        drawW,
-        drawH
-      );
-      return await loadImageCached(canvas.toDataURL('image/png'));
+    // Recorre el contorno de una cara (fracciones de la imagen) como path.
+    function traceVrFace(ctx, face, place) {
+      face.forEach(([fx, fy], i) => {
+        const X = place.x + fx * place.w;
+        const Y = place.y + fy * place.h;
+        if (i) ctx.lineTo(X, Y); else ctx.moveTo(X, Y);
+      });
+      ctx.closePath();
     }
 
-    function drawTriangleImage(ctx, img, s0, s1, s2, d0, d1, d2) {
-      const delta = s0.x * (s2.y - s1.y) - s1.x * s2.y + s2.x * s1.y + (s1.x - s2.x) * s0.y;
-      if (!delta) return;
+    /* Recolorea las caras blancas del mueble. La capa de color se construye
+     * aparte: la máscara le da el alfa (solo el metal blanco), los polígonos de
+     * las caras la recortan, y se vuelca en multiply para respetar sombras.
+     */
+    function paintVrStationColor(ctx, maskImg, place, color) {
+      const tint = document.createElement('canvas');
+      tint.width = VR_PAGE_W;
+      tint.height = VR_PAGE_H;
+      const tctx = tint.getContext('2d');
+      tctx.drawImage(maskImg, place.x, place.y, place.w, place.h);
+      tctx.globalCompositeOperation = 'source-in';   // color donde hay metal blanco
+      tctx.fillStyle = color;
+      tctx.fillRect(0, 0, VR_PAGE_W, VR_PAGE_H);
+      tctx.globalCompositeOperation = 'destination-in'; // …y solo en las tres caras
+      tctx.beginPath();
+      VR_COLOR_FACES.forEach((face) => traceVrFace(tctx, face, place));
+      tctx.fill();
+
       ctx.save();
-      ctx.beginPath();
-      ctx.moveTo(d0.x, d0.y);
-      ctx.lineTo(d1.x, d1.y);
-      ctx.lineTo(d2.x, d2.y);
-      ctx.closePath();
-      ctx.clip();
-      const m11 = -(s0.y * (d2.x - d1.x) - s1.y * d2.x + s2.y * d1.x + (s1.y - s2.y) * d0.x) / delta;
-      const m12 = (s1.y * d2.y + s0.y * (d1.y - d2.y) - s2.y * d1.y + (s2.y - s1.y) * d0.y) / delta;
-      const m21 = (s0.x * (d2.x - d1.x) - s1.x * d2.x + s2.x * d1.x + (s1.x - s2.x) * d0.x) / delta;
-      const m22 = -(s1.x * d2.y + s0.x * (d1.y - d2.y) - s2.x * d1.y + (s2.x - s1.x) * d0.y) / delta;
-      const dx = (s0.x * (s2.y * d1.x - s1.y * d2.x) + s0.y * (s1.x * d2.x - s2.x * d1.x) + (s2.x * s1.y - s1.x * s2.y) * d0.x) / delta;
-      const dy = (s0.x * (s2.y * d1.y - s1.y * d2.y) + s0.y * (s1.x * d2.y - s2.x * d1.y) + (s2.x * s1.y - s1.x * s2.y) * d0.y) / delta;
-      ctx.transform(m11, m12, m21, m22, dx, dy);
-      ctx.drawImage(img, 0, 0);
+      ctx.globalCompositeOperation = 'multiply';
+      ctx.drawImage(tint, 0, 0);
       ctx.restore();
     }
 
-    function warpImageToQuad(ctx, img, quad) {
-      const sw = img.naturalWidth || img.width;
-      const sh = img.naturalHeight || img.height;
-      drawTriangleImage(
-        ctx,
-        img,
-        { x: 0, y: 0 },
-        { x: sw, y: 0 },
-        { x: 0, y: sh },
-        quad.tl,
-        quad.tr,
-        quad.bl
-      );
-      drawTriangleImage(
-        ctx,
-        img,
-        { x: sw, y: 0 },
-        { x: sw, y: sh },
-        { x: 0, y: sh },
-        quad.tr,
-        quad.br,
-        quad.bl
-      );
+    /* Coloca el logo del cliente sobre el frontal, en perspectiva.
+     * La caja del logo se define en el plano "plano" del frontal (VR_LOGO_BOX)
+     * y se ajusta al aspecto del logo antes de proyectarla: así el logo nunca
+     * se deforma, solo se escorza.
+     * Mezcla normal (no multiply) a propósito: un logo institucional puede venir
+     * en blanco, y multiply lo haría desaparecer sobre un mueble oscuro.
+     */
+    function paintVrStationLogo(ctx, logoImg, place) {
+      const aspect = (logoImg.naturalWidth || logoImg.width) / Math.max(1, logoImg.naturalHeight || logoImg.height);
+      const boxW = (VR_LOGO_BOX.u1 - VR_LOGO_BOX.u0) * place.w;
+      const boxH = (VR_LOGO_BOX.v1 - VR_LOGO_BOX.v0) * place.h;
+      const boxAspect = boxW / Math.max(1, boxH);
+      let u0 = VR_LOGO_BOX.u0, u1 = VR_LOGO_BOX.u1, v0 = VR_LOGO_BOX.v0, v1 = VR_LOGO_BOX.v1;
+      if (aspect > boxAspect) {          // logo más ancho: ajusta al ancho de la caja
+        const h = (v1 - v0) * boxAspect / aspect;
+        const cy = (v0 + v1) / 2;
+        v0 = cy - h / 2; v1 = cy + h / 2;
+      } else {                            // logo más alto: ajusta al alto
+        const w = (u1 - u0) * aspect / boxAspect;
+        const cx = (u0 + u1) / 2;
+        u0 = cx - w / 2; u1 = cx + w / 2;
+      }
+      const panel = quadHomography(VR_FACE_FRONTAL.map(([fx, fy]) => [place.x + fx * place.w, place.y + fy * place.h]));
+      warpPerspective(ctx, logoImg, [
+        projectPoint(panel, u0, v0),
+        projectPoint(panel, u1, v0),
+        projectPoint(panel, u1, v1),
+        projectPoint(panel, u0, v1)
+      ]);
     }
 
-    // Compone la página de estación VR con el logo del cliente:
-    // 15B (sin estación) + estación + logo warpeado sobre el panel (perspectiva + multiply).
+    // Compone la página de estación VR personalizada: 15B (sin estación) +
+    // estación + color del mueble + logo del cliente en el frontal.
     async function composeVrStationCanvas() {
       const logoSrc = getVrLogoSrc();
-      const [bgImg, stationImg, logoImg] = await Promise.all([
+      const color = getVrStationColor();
+      const [bgImg, stationImg, maskImg, logoImg] = await Promise.all([
         loadImageCached(VR_STATION_BG),
         loadImageCached(VR_STATION_SRC),
+        color ? loadImageCached(VR_STATION_MASK) : Promise.resolve(null),
         logoSrc ? loadImageCached(logoSrc) : Promise.resolve(null)
       ]);
 
@@ -2072,39 +2322,30 @@
       // Estación colocada en la página
       const sw = stationImg.naturalWidth || stationImg.width;
       const sh = stationImg.naturalHeight || stationImg.height;
-      const pl = VR_STATION_PLACEMENT;
-      const drawW = pl.w;
-      const drawH = pl.w * sh / sw;
-      ctx.drawImage(stationImg, pl.x, pl.y, drawW, drawH);
+      const place = {
+        x: VR_STATION_PLACEMENT.x,
+        y: VR_STATION_PLACEMENT.y,
+        w: VR_STATION_PLACEMENT.w,
+        h: VR_STATION_PLACEMENT.w * sh / sw
+      };
+      ctx.drawImage(stationImg, place.x, place.y, place.w, place.h);
 
-      // Logo del cliente sobre el panel frontal-derecho (perspectiva + multiply)
-      if (logoImg) {
-        const prepared = await buildPreparedLogoImage(logoImg);
-        const aspect = (prepared.naturalWidth || prepared.width) / Math.max(1, (prepared.naturalHeight || prepared.height));
-        const toPage = (f) => ({ x: pl.x + f.x * drawW, y: pl.y + f.y * drawH });
-        const panelQuad = {
-          tl: toPage(VR_STATION_QUAD.tl), tr: toPage(VR_STATION_QUAD.tr),
-          br: toPage(VR_STATION_QUAD.br), bl: toPage(VR_STATION_QUAD.bl)
-        };
-        const innerQuad = fitLogoQuad(panelQuad, aspect);
-        ctx.save();
-        ctx.globalCompositeOperation = 'multiply';
-        warpImageToQuad(ctx, prepared, innerQuad);
-        ctx.restore();
-      }
+      if (color && maskImg) paintVrStationColor(ctx, maskImg, place, color);
+      if (logoImg) paintVrStationLogo(ctx, logoImg, place);
       return canvas;
     }
 
     function ensureVrStation() {
       const entry = vrStationCache;
-      if (entry.version === state.logoVersion && entry.url) return Promise.resolve(entry.url);
-      if (entry.version === state.logoVersion && entry.promise) return entry.promise;
-      const currentVersion = state.logoVersion;
-      entry.version = currentVersion;
+      const key = vrStationKey();
+      if (entry.key === key && entry.url) return Promise.resolve(entry.url);
+      if (entry.key === key && entry.promise) return entry.promise;
+      entry.key = key;
+      entry.url = '';
       entry.promise = composeVrStationCanvas()
         .then((canvas) => {
           const url = canvas.toDataURL('image/png');
-          if (entry.version === currentVersion) {
+          if (entry.key === key) {
             entry.url = url;
             entry.promise = null;
             renderPreview();
@@ -2113,21 +2354,22 @@
         })
         .catch((error) => {
           console.error('No se pudo componer la estación VR', error);
-          if (entry.version === currentVersion) entry.promise = null;
+          if (entry.key === key) entry.promise = null;
           return '';
         });
       return entry.promise;
     }
 
     // Página de estación VR:
-    //  - sin logo del cliente -> 15A (estación por defecto de ÓptimaCultura).
-    //  - con logo -> 15B + estación con el logo del cliente (compuesto async, cacheado).
+    //  - sin logo y sin color -> 15A (estación por defecto de ÓptimaCultura).
+    //  - personalizada -> 15B + estación con el color y el logo del cliente
+    //    (composición async cacheada; mientras llega se muestra la 15B).
     function vrStationMarkup() {
-      if (!getVrLogoSrc()) {
+      if (!isVrStationCustomized()) {
         return `<article class="page static-page"><img src="assets/pages/15A.webp" alt="Experiencias immersivas VR"></article>`;
       }
       const entry = vrStationCache;
-      if (entry.version === state.logoVersion && entry.url) {
+      if (entry.key === vrStationKey() && entry.url) {
         return `<article class="page static-page"><img src="${entry.url}" alt="Experiencias immersivas VR"></article>`;
       }
       ensureVrStation();
@@ -2192,6 +2434,37 @@
       return state.logoBgRemovalEnabled
         ? (state.logoBgRemovedData || state.logoTrimData || state.logoData || '')
         : (state.logoTrimData || state.logoData || '');
+    }
+
+    // --- Controles del color del mueble (estación VR) ---
+    // Acepta 'original' o un hex de 6 dígitos; cualquier otra cosa -> original.
+    function normalizeVrColor(value) {
+      const v = String(value || 'original').trim().toLowerCase();
+      if (v === 'original') return 'original';
+      return /^#[0-9a-f]{6}$/.test(v) ? v : 'original';
+    }
+
+    // Vuelca state.vrColor a los radios y al selector de color libre.
+    function syncVrColorInputs() {
+      const color = state.vrColor || 'original';
+      const preset = VR_COLORS.some((c) => c.value === color);
+      document.querySelectorAll('input[name="vrColor"]').forEach((radio) => {
+        radio.checked = preset ? radio.value === color : radio.value === 'custom';
+      });
+      if (els.vrColorCustom && !preset && color !== 'original') els.vrColorCustom.value = color;
+    }
+
+    // El bloque de personalización solo tiene sentido con el servicio VR marcado.
+    function updateVrConfigVisibility() {
+      if (!els.vrStationConfig) return;
+      els.vrStationConfig.classList.toggle('is-hidden', !state.services.has('vr_estaciones'));
+    }
+
+    // Cambiar el color invalida la composición cacheada y repinta la página.
+    function setVrColor(value) {
+      state.vrColor = normalizeVrColor(value);
+      resetVrComposites();
+      renderPreview();   // ya marca la propuesta como modificada
     }
 
     function updateLogoRemoveBgButton() {
@@ -2320,6 +2593,7 @@
         optionBDuration: state.optionBDuration,
         logoBgRemovalEnabled: state.logoBgRemovalEnabled,
         additionalInfo: state.additionalInfo,
+        vrColor: state.vrColor,
         docType: state.docType,
         proyeccion: {
           indice: { text: state.proyeccion.indice.text, image: state.proyeccion.indice.image },
@@ -2367,6 +2641,7 @@
         optionBDuration: '',
         logoBgRemovalEnabled: false,
         additionalInfo: '',
+        vrColor: 'original',
         docType: 'presupuesto',
         proyeccion: { indice: { text: '', image: '' }, finalSections: [] }
       };
@@ -2386,7 +2661,9 @@
       els.optionBPriceNoteInput.value = state.optionBPriceNote;
       els.optionBDurationInput.value = state.optionBDuration;
       els.additionalInfoInput.value = state.additionalInfo || '';
+      syncVrColorInputs();
       setServiceCheckboxes(Array.from(state.services));
+      updateVrConfigVisibility();
     }
 
     // Punto ÚNICO para cargar una propuesta completa (reset, ejemplo o archivo).
@@ -2414,6 +2691,7 @@
       state.optionBDuration = d.optionBDuration || '';
       state.logoBgRemovalEnabled = !!d.logoBgRemovalEnabled;
       state.additionalInfo = d.additionalInfo || '';
+      state.vrColor = normalizeVrColor(d.vrColor);
       state.docType = d.docType === 'proyeccion' ? 'proyeccion' : 'presupuesto';
       const proj = (d.proyeccion && typeof d.proyeccion === 'object') ? d.proyeccion : {};
       state.proyeccion = {
@@ -2628,9 +2906,27 @@
         const key = ev.target.dataset.service;
         if (ev.target.checked) state.services.add(key);
         else state.services.delete(key);
+        updateVrConfigVisibility();
         renderAll();
       });
     });
+
+    // Color del mueble de la estación VR: los presets fijan el valor y el
+    // selector nativo marca "Otro…" y aplica el color en vivo.
+    document.querySelectorAll('input[name="vrColor"]').forEach((radio) => {
+      radio.addEventListener('change', () => {
+        if (!radio.checked) return;
+        setVrColor(radio.value === 'custom' ? (els.vrColorCustom ? els.vrColorCustom.value : 'original') : radio.value);
+      });
+    });
+
+    if (els.vrColorCustom) {
+      els.vrColorCustom.addEventListener('input', () => {
+        const customRadio = document.querySelector('input[name="vrColor"][value="custom"]');
+        if (customRadio) customRadio.checked = true;
+        setVrColor(els.vrColorCustom.value);
+      });
+    }
 
     async function runPdfExport(buttonEl) {
       const btn = buttonEl || els.printBtn;
@@ -2638,8 +2934,8 @@
       const previousText = btn.textContent;
       btn.textContent = 'Preparando exportación...';
       try {
-        // Asegura que la composición de la estación VR (con logo) esté lista antes de imprimir.
-        if (getVrLogoSrc() && buildSequence().some((entry) => entry.type === 'vr')) {
+        // Asegura que la composición de la estación VR esté lista antes de imprimir.
+        if (isVrStationCustomized() && buildSequence().some((entry) => entry.type === 'vr')) {
           await ensureVrStation();
         }
         requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
@@ -3488,6 +3784,7 @@
     // ---- arranque ----
     renderServiceFilter();
     document.querySelector('.app').setAttribute('data-doctype', state.docType);
+    updateVrConfigVisibility();
     renderAll();
     bootstrapSession();
   </script>
