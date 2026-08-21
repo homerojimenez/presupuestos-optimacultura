@@ -1,0 +1,64 @@
+name: Desplegar en SiteGround
+
+# Cada push a main sincroniza la raíz del repo con el public_html del subdominio.
+# El proyecto es PHP + HTML/CSS/JS plano: no hay build, se sube tal cual.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:        # permite lanzarlo a mano desde la pestaña Actions
+
+concurrency:                # evita que dos despliegues se pisen
+  group: deploy-siteground
+  cancel-in-progress: false
+
+env:
+  SSH_PORT: '18765'         # SiteGround no usa el 22
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar el repositorio
+        uses: actions/checkout@v4
+
+      - name: Preparar la clave SSH
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -p "$SSH_PORT" -H "${{ secrets.SSH_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null
+          chmod 644 ~/.ssh/known_hosts
+
+      - name: Comprobar la conexión
+        run: |
+          ssh -i ~/.ssh/deploy_key -p "$SSH_PORT" -o BatchMode=yes \
+            "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" \
+            "test -d '${{ secrets.REMOTE_PATH }}' && echo 'Destino OK: ${{ secrets.REMOTE_PATH }}'"
+
+      # --delete deja el servidor idéntico al repo, salvo lo excluido:
+      #   data/           base de datos e imágenes subidas (viven solo en el servidor)
+      #   api/config.php  credenciales de MySQL y claves de IA
+      # Sin esas dos exclusiones cada despliegue borraría el histórico y la config.
+      - name: Sincronizar con rsync
+        run: |
+          rsync -az --delete --human-readable --stats \
+            -e "ssh -i ~/.ssh/deploy_key -p $SSH_PORT -o BatchMode=yes" \
+            --exclude '.git/' \
+            --exclude '.github/' \
+            --exclude '.claude/' \
+            --exclude 'node_modules/' \
+            --exclude '.env' \
+            --exclude '.DS_Store' \
+            --exclude '.gitignore' \
+            --exclude 'data/' \
+            --exclude 'api/config.php' \
+            --exclude 'router.php' \
+            --exclude '*.zip' \
+            --exclude 'README.md' \
+            --exclude 'DEPLOY.md' \
+            --exclude 'LEEME-SITEGROUND.txt' \
+            ./ "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.REMOTE_PATH }}"
+
+      - name: Limpiar la clave
+        if: always()
+        run: rm -f ~/.ssh/deploy_key
