@@ -17,6 +17,6 @@ DirectoryIndex index.html
 
 # Bloquear acceso web directo a datos y configuración
 RedirectMatch 404 ^/data/
-<FilesMatch "config\.php$">
+<FilesMatch "^config(\.sample)?\.php$">
   Require all denied
 </FilesMatch>
