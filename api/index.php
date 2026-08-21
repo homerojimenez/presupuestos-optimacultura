@@ -154,6 +154,8 @@ if ($path === '/api/proposals' && $method === 'GET') {
   $services = array_filter(array_map('trim', explode(',', $_GET['services'] ?? '')), fn($s) => $s !== '');
   $where = [];
   $args = [];
+  // Un usuario normal solo ve su propio histórico; el administrador, el de todos.
+  if (!is_admin($user)) { $where[] = 'owner_id = ?'; $args[] = $user['id']; }
   if ($q !== '') { $where[] = 'client_name LIKE ?'; $args[] = '%' . $q . '%'; }
   foreach ($services as $svc) { $where[] = 'services LIKE ?'; $args[] = '%,' . $svc . ',%'; }
   $sql = 'SELECT id, client_name, services, owner_id, owner_username, created_at, updated_at FROM proposals'
@@ -188,15 +190,14 @@ if (preg_match('#^/api/proposals/(\d+)$#', $path, $m)) {
   if ($method === 'GET') {
     require_auth($user);
     if (!$existing) json_out(404, ['error' => 'Propuesta no encontrada']);
+    require_proposal_access($user, $existing, 'abrir');
     json_out(200, array_merge(proposal_meta($existing), ['payload' => json_decode($existing['payload'], true)]));
   }
 
   if ($method === 'PUT') {
     require_auth($user);
     if (!$existing) json_out(404, ['error' => 'Propuesta no encontrada']);
-    if ((int) $existing['owner_id'] !== (int) $user['id'] && $user['role'] !== 'admin') {
-      json_out(403, ['error' => 'Solo el propietario o un administrador pueden editar']);
-    }
+    require_proposal_access($user, $existing, 'editar');
     $b = read_json_body();
     $payload = normalize_images($b['payload'] ?? []);
     $oldRefs = referenced_uploads(json_decode($existing['payload'], true) ?: []);
@@ -215,9 +216,7 @@ if (preg_match('#^/api/proposals/(\d+)$#', $path, $m)) {
   if ($method === 'DELETE') {
     require_auth($user);
     if (!$existing) json_out(404, ['error' => 'Propuesta no encontrada']);
-    if ((int) $existing['owner_id'] !== (int) $user['id'] && $user['role'] !== 'admin') {
-      json_out(403, ['error' => 'Solo el propietario o un administrador pueden eliminar']);
-    }
+    require_proposal_access($user, $existing, 'eliminar');
     delete_uploads(referenced_uploads(json_decode($existing['payload'], true) ?: []));
     $pdo->prepare('DELETE FROM proposals WHERE id = ?')->execute([$id]);
     json_out(200, ['ok' => true]);

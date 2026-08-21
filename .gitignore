@@ -19,3 +19,6 @@ node_modules/
 
 # Configuración con credenciales (cada entorno la suya)
 /api/config.php
+
+# Paquete de despliegue (se regenera)
+/presupuestos-siteground.zip

@@ -32,6 +32,22 @@ function require_auth($user) {
   return $user;
 }
 
+function is_admin($user): bool {
+  return !empty($user) && ($user['role'] ?? '') === 'admin';
+}
+
+/* Visibilidad del histórico: un administrador ve las propuestas de todo el
+ * equipo; un usuario normal, solo las que ha creado él. Las propuestas
+ * antiguas sin propietario (owner_id nulo) quedan en manos del administrador. */
+function owns_proposal($user, array $proposal): bool {
+  return $proposal['owner_id'] !== null && (int) $proposal['owner_id'] === (int) $user['id'];
+}
+
+function require_proposal_access($user, array $proposal, string $accion = 'ver'): void {
+  if (is_admin($user) || owns_proposal($user, $proposal)) return;
+  json_out(403, ['error' => "No puedes {$accion} una propuesta de otro usuario"]);
+}
+
 // ---- imágenes ----
 const IMAGE_FIELDS = ['heroData', 'logoData'];
 const EXT_BY_MIME = [

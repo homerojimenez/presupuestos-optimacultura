@@ -295,7 +295,7 @@ function agent_tools(): array {
           'price' => ['type' => 'string', 'description' => 'Precio (p. ej. "0,65" o "12.500").'],
           'priceNote' => ['type' => 'string', 'description' => 'Nota del precio (por defecto "IVA no incluido").'],
           'duration' => ['type' => 'string', 'description' => 'Duración en meses (número).'],
-          'additionalInfo' => ['type' => 'string', 'description' => 'Información adicional al final de la oferta.'],
+          'additionalInfo' => ['type' => 'string', 'description' => 'Información adicional al final de la oferta (opción A).'],
           'docType' => ['type' => 'string', 'enum' => ['presupuesto', 'proyeccion'], 'description' => 'Tipo de documento.'],
           'descriptions' => array_merge($descSchema, ['description' => 'Descripción comercial por servicio incluido (una frase o dos por servicio).']),
           'optionBEnabled' => ['type' => 'boolean', 'description' => 'Activa una segunda opción (B).'],
@@ -303,6 +303,7 @@ function agent_tools(): array {
           'optionBPrice' => ['type' => 'string'],
           'optionBPriceNote' => ['type' => 'string'],
           'optionBDuration' => ['type' => 'string'],
+          'optionBAdditionalInfo' => ['type' => 'string', 'description' => 'Información adicional al final de la página de la opción B.'],
           'optionBDescriptions' => $descSchema,
         ],
       ],
@@ -541,7 +542,7 @@ function agent_apply_update(array $input, array &$patch): string {
     return $out;
   };
   $strFields = ['clientName', 'price', 'priceNote', 'duration', 'additionalInfo',
-                'optionBPrice', 'optionBPriceNote', 'optionBDuration'];
+                'optionBPrice', 'optionBPriceNote', 'optionBDuration', 'optionBAdditionalInfo'];
   foreach ($strFields as $f) {
     if (isset($input[$f]) && is_string($input[$f])) { $patch[$f] = $input[$f]; $applied[] = $f; }
   }

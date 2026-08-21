@@ -33,8 +33,12 @@ datos SQLite e imágenes subidas— se guardan en `data/` (no versionado).
 - **Backend:** `server/` — Node nativo (`node:http`, `node:sqlite`, `node:crypto`),
   cero dependencias npm. Sirve el frontend y una API REST.
 - **Auth:** login por sesión (cookies httpOnly); contraseñas con scrypt+salt.
+- **Permisos:** un administrador ve y gestiona el histórico de todo el equipo;
+  un usuario normal solo las propuestas que ha creado él. El filtro se aplica en
+  el servidor (listado, apertura, edición y borrado), no solo en la interfaz.
 - **Datos:** propuestas en SQLite; imágenes como ficheros en `data/uploads/`
-  (protegidas por sesión). Histórico compartido con búsqueda por nombre y servicios.
+  (protegidas por sesión). Histórico con búsqueda por nombre y servicios, acotado
+  al alcance de cada rol.
 
 ## Asistente por IA (opcional)
 
@@ -73,6 +77,11 @@ Las coordenadas de las caras están medidas sobre esa misma foto y son las misma
 usa la landing de estaciones VR.
 
 ## Historial de versiones
+
+**v5.3.0** — Permisos del histórico: los administradores ven las propuestas de
+todo el equipo y los usuarios solo las suyas. Información adicional independiente
+para la opción A y la B. Proyección económica: índice generado a partir de los
+títulos de las páginas finales y botón para añadir página.
 
 **v5.2.0** — Personalización de la estación VR: color del mueble y logo del cliente
 en el frontal con perspectiva real (homografía), sobre la foto calibrada de la estación.

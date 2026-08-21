@@ -1,0 +1,60 @@
+SUBIDA A SITEGROUND — presupuestos.optimacultura.es
+===================================================
+
+Paquete: presupuestos-siteground.zip
+
+Ya lleva SOLO lo que va al servidor. Quedan fuera a propósito:
+api/config.php (tus credenciales), data/ (base de datos e imágenes subidas),
+router.php (solo pruebas locales), .git/, .claude/ y la documentación.
+
+
+A) ACTUALIZAR LA WEB QUE YA ESTÁ FUNCIONANDO
+--------------------------------------------
+Es lo habitual. Solo han cambiado seis archivos desde la última subida:
+
+    index.html
+    api/index.php
+    api/lib.php
+    api/ai.php
+    assets/pages/estacion-vr.webp        (nuevo)
+    assets/pages/estacion-vr-mask.png    (nuevo)
+
+1. Site Tools -> Site -> File Manager, entra en el document root del subdominio.
+2. Sube esos seis respetando las carpetas (sobrescribiendo los que ya existen).
+   Si prefieres no ir uno a uno, sube el ZIP entero y descomprímelo encima:
+   como config.php no viene dentro, tu configuración NO se toca.
+3. Recarga con Ctrl+F5 (o Cmd+Shift+R) para saltarte la caché del navegador.
+
+NO borres ni sobrescribas nunca api/config.php ni la carpeta data/.
+No hace falta tocar la base de datos: no hay cambios de esquema. Las propuestas
+ya guardadas se abren igual (la información adicional antigua se coloca sola
+donde se imprimía antes).
+
+
+B) INSTALACIÓN DESDE CERO
+-------------------------
+Sigue DEPLOY.md, que lo explica paso a paso: base de datos MySQL, subdominio,
+subir este ZIP al document root, copiar api/config.sample.php a api/config.php
+con tus credenciales, PHP 8.x, HTTPS y primer arranque.
+
+
+QUÉ HAY DE NUEVO EN ESTA VERSIÓN
+---------------------------------
+- Estación VR: color del mueble (paleta + color libre) y logo del cliente
+  estampado en el frontal con perspectiva real. El bloque de personalización
+  aparece en el formulario al marcar el servicio OptimaVR.
+- Oferta económica: información adicional independiente para la opción A y
+  para la opción B; cada una se imprime al final de su propia página.
+- Proyección económica: la página de índice se genera sola (título "Índice",
+  1. Prestación de Servicios y 2. Proyección económica, con un 2.x por cada
+  página final que tenga título) y hay un botón "+ Añadir página" debajo de la
+  última página personalizable.
+- Permisos del histórico: los administradores siguen viendo las propuestas de
+  todo el equipo; los usuarios con rol "usuario" solo ven, abren, editan y
+  borran las que han creado ellos. Ojo: las propuestas antiguas que no tengan
+  propietario registrado solo las verá un administrador.
+
+Comprueba después de subir: entra, marca OptimaVR, carga un logo de cliente y
+mira la página de realidad virtual; en Proyección económica revisa el índice; y
+entra con una cuenta de rol "usuario" para confirmar que su histórico solo
+muestra sus propias propuestas.

@@ -799,6 +799,7 @@
     .history-item .h-actions .danger { color: #9d1c1c; border-color: #e3b7b7; }
     .history-item .h-actions button:hover { background: #f2f2f2; }
     .modal-empty { color: var(--muted); text-align: center; padding: 30px 10px; }
+    .modal-note { margin: 0 0 12px; color: var(--muted); font-size: 0.82rem; line-height: 1.4; }
 
     .users-table { width: 100%; border-collapse: collapse; }
     .users-table th, .users-table td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--line); font-size: 0.88rem; }
@@ -851,6 +852,21 @@
     .proj-section-tools { position: absolute; top: 8px; right: 8px; display: flex; gap: 6px; z-index: 4; }
     .proj-section-tools button { border: 1px solid var(--line); background: rgba(255,255,255,.92); border-radius: 8px; width: 30px; height: 30px; cursor: pointer; font-size: 0.9rem; }
 
+    /* Índice generado */
+    .proj-indice-list { flex: 0 0 auto; color: #111; font-size: clamp(0.78rem, 1.5vw, 1.15rem); line-height: 1.55; }
+    .proj-indice-main { font-weight: 700; margin: 0 0 0.4em; }
+    .proj-indice-subs { margin: -0.15em 0 0.4em; padding-left: 1.7em; }
+    .proj-indice-sub { font-weight: 400; margin: 0 0 0.25em; }
+
+    /* "+" bajo la última página personalizable */
+    .proj-add-page { display: flex; justify-content: center; margin-top: 12px; }
+    .proj-add-page button {
+      width: auto; min-height: 40px; padding: 9px 20px; border-radius: 999px;
+      border: 1.5px dashed var(--line); background: #fff; color: #111;
+      font: inherit; font-weight: 600; font-size: 0.86rem; cursor: pointer; box-shadow: none;
+    }
+    .proj-add-page button:hover { border-color: #111; background: #f2f2f2; }
+
     /* Barra flotante de formato rich-text */
     .rt-toolbar {
       position: fixed; z-index: 8000; display: none; gap: 4px; padding: 5px;
@@ -892,7 +908,7 @@
       html, body { background: #fff !important; }
       #loginOverlay, .modal-overlay, .rt-toolbar, .assistant-fab, .assistant-panel { display: none !important; }
       .proj-image { cursor: default; }
-      .proj-image .proj-image-hint, .proj-section-tools { display: none !important; }
+      .proj-image .proj-image-hint, .proj-section-tools, .proj-add-page { display: none !important; }
       .app { display: block; }
       .app-header, .sidebar, .preview-header, .page-label { display: none !important; }
       .preview-area { padding: 0 !important; background: #fff !important; }
@@ -1198,6 +1214,9 @@
                 </div>
               </label>
             </div>
+            <label class="additional-info-field">Información adicional
+              <textarea id="additionalInfoInput" rows="4" placeholder="Texto libre que aparecerá al final de esta página de oferta económica."></textarea>
+            </label>
           </div>
 
           <label class="offer-toggle">
@@ -1237,12 +1256,12 @@
                   </div>
                 </label>
               </div>
+              <label class="additional-info-field">Información adicional
+                <textarea id="optionBAdditionalInfoInput" rows="4" placeholder="Texto libre que aparecerá al final de la página de la opción B."></textarea>
+              </label>
             </div>
           </div>
         </div>
-        <label class="additional-info-field">Información adicional
-          <textarea id="additionalInfoInput" rows="4" placeholder="Texto libre que aparecerá al final de la página de oferta económica."></textarea>
-        </label>
       </section>
 
       <div class="actions">
@@ -1272,6 +1291,7 @@
         <button class="modal-close" data-close-modal="historyModal" type="button" aria-label="Cerrar">×</button>
       </div>
       <div class="modal-body">
+        <p id="historyScopeNote" class="modal-note" hidden>Ves solo las propuestas que has creado tú. Los administradores ven las de todo el equipo.</p>
         <div class="modal-toolbar">
           <input id="historySearch" type="search" placeholder="Buscar por nombre de cliente…" autocomplete="off" />
           <div id="historyServiceFilter" class="service-filter"></div>
@@ -1385,6 +1405,7 @@
       optionBPrice: '',
       optionBPriceNote: 'IVA no incluido',
       optionBDuration: '',
+      optionBAdditionalInfo: '',
       logoBgRemovedData: '',
       logoBgRemovalEnabled: false,
       logoAspect: 3,
@@ -1431,6 +1452,7 @@
       printBtn: document.getElementById('printBtn'),
       resetBtn: document.getElementById('resetBtn'),
       additionalInfoInput: document.getElementById('additionalInfoInput'),
+      optionBAdditionalInfoInput: document.getElementById('optionBAdditionalInfoInput'),
       projPhotoInput: document.getElementById('projPhotoInput'),
       projTextImageInput: document.getElementById('projTextImageInput')
     };
@@ -1798,6 +1820,12 @@
       `;
     }
 
+    // Información adicional de cada oferta: cada opción lleva la suya, así que
+    // se imprime al final de su propia página.
+    function getAdditionalInfo(scope) {
+      return (scope === 'B' ? state.optionBAdditionalInfo : state.additionalInfo) || '';
+    }
+
     function budgetPageMarkup(optionLabel, items, price, priceNote, duration, scope) {
       const subtitle = items.length ? items.map((item) => item.label).join(' · ') : 'Sin servicios seleccionados';
       const hasSeparateOptions = state.optionBEnabled;
@@ -1830,10 +1858,10 @@
               <li>Reposición de los elementos deteriorados, averiados o en mal estado.</li>
             </ul>
           </div>
-          ${((scope === 'B') || !state.optionBEnabled) && (state.additionalInfo || '').trim() ? `
+          ${(getAdditionalInfo(scope) || '').trim() ? `
             <div class="budget-additional">
               <h3>Información adicional</h3>
-              <p>${escapeHTML(state.additionalInfo).replace(/\n/g, '<br>')}</p>
+              <p>${escapeHTML(getAdditionalInfo(scope)).replace(/\n/g, '<br>')}</p>
             </div>
           ` : ''}
         </article>
@@ -2395,13 +2423,39 @@
       return `<div class="proj-topbar"><span class="proj-eyebrow">Proyección económica</span><img src="assets/optima-wordmark.png" alt="ÓptimaCultura"></div>`;
     }
 
+    /* Índice de la proyección: dos epígrafes fijos y, colgando del segundo, un
+     * subepígrafe por cada página personalizable del final que tenga título.
+     * Se genera solo a partir de esos títulos, no se escribe a mano; las
+     * páginas sin título todavía no aparecen. */
+    function projIndiceListMarkup() {
+      const subs = state.proyeccion.finalSections
+        .map((sec) => (sec.title || '').trim())
+        .filter(Boolean)
+        .map((title, i) => `<p class="proj-indice-sub">2.${i + 1}. ${escapeHTML(title)}</p>`)
+        .join('');
+      return `
+        <p class="proj-indice-main">1. Prestación de Servicios</p>
+        <p class="proj-indice-main">2. Proyección económica</p>
+        ${subs ? `<div class="proj-indice-subs">${subs}</div>` : ''}
+      `;
+    }
+
+    // Al teclear un título se repinta solo esta lista: un re-render completo
+    // perdería el cursor dentro del título que se está escribiendo.
+    function refreshIndiceList() {
+      const list = els.pages.querySelector('[data-proj-indice-list]');
+      if (list) list.innerHTML = projIndiceListMarkup();
+    }
+
     function projIndiceMarkup() {
       const p = state.proyeccion.indice;
       return `
         <article class="page proj-page proj-indice-page">
           ${projTopbarMarkup()}
+          <h2 class="proj-title">Índice</h2>
           <div class="proj-body">
-            <div class="proj-text" contenteditable="true" data-proj-text="indice" data-placeholder="Escribe aquí el índice: usa negritas y viñetas…">${p.text || ''}</div>
+            <div class="proj-indice-list" data-proj-indice-list>${projIndiceListMarkup()}</div>
+            <div class="proj-text" contenteditable="true" data-proj-text="indice" data-placeholder="Nota opcional bajo el índice…">${p.text || ''}</div>
             ${projImageMarkup('indice', p.image)}
           </div>
         </article>
@@ -2501,6 +2555,9 @@
       const sequence = buildSequence();
       els.pageCount.textContent = `${sequence.length} páginas`;
       els.pages.innerHTML = sequence.map((entry, index) => {
+        // El "+" cuelga de la última página personalizable del final.
+        const esUltimaFinal = entry.type === 'projFinal'
+          && !sequence.slice(index + 1).some((e) => e.type === 'projFinal');
         const inner = entry.type === 'cover'
           ? coverMarkup()
           : entry.type === 'budgetA'
@@ -2521,6 +2578,7 @@
               <span>${escapeHTML(entry.label)}</span>
             </div>
             ${inner}
+            ${esUltimaFinal ? '<div class="proj-add-page"><button type="button" data-proj-add-section>+ Añadir página</button></div>' : ''}
           </section>
         `;
       }).join('');
@@ -2591,6 +2649,7 @@
         optionBPrice: state.optionBPrice,
         optionBPriceNote: state.optionBPriceNote,
         optionBDuration: state.optionBDuration,
+        optionBAdditionalInfo: state.optionBAdditionalInfo,
         logoBgRemovalEnabled: state.logoBgRemovalEnabled,
         additionalInfo: state.additionalInfo,
         vrColor: state.vrColor,
@@ -2639,6 +2698,7 @@
         optionBPrice: '',
         optionBPriceNote: 'IVA no incluido',
         optionBDuration: '',
+        optionBAdditionalInfo: '',
         logoBgRemovalEnabled: false,
         additionalInfo: '',
         vrColor: 'original',
@@ -2661,6 +2721,7 @@
       els.optionBPriceNoteInput.value = state.optionBPriceNote;
       els.optionBDurationInput.value = state.optionBDuration;
       els.additionalInfoInput.value = state.additionalInfo || '';
+      els.optionBAdditionalInfoInput.value = state.optionBAdditionalInfo || '';
       syncVrColorInputs();
       setServiceCheckboxes(Array.from(state.services));
       updateVrConfigVisibility();
@@ -2691,6 +2752,15 @@
       state.optionBDuration = d.optionBDuration || '';
       state.logoBgRemovalEnabled = !!d.logoBgRemovalEnabled;
       state.additionalInfo = d.additionalInfo || '';
+      state.optionBAdditionalInfo = d.optionBAdditionalInfo || '';
+      // Compatibilidad con propuestas guardadas antes de separar los textos:
+      // había una sola "información adicional" que, con la opción B activa, se
+      // imprimía al final de la página B. Se deja donde estaba.
+      const esFormatoAntiguo = !!data && typeof data === 'object' && !('optionBAdditionalInfo' in data);
+      if (esFormatoAntiguo && state.optionBEnabled && state.additionalInfo) {
+        state.optionBAdditionalInfo = state.additionalInfo;
+        state.additionalInfo = '';
+      }
       state.vrColor = normalizeVrColor(d.vrColor);
       state.docType = d.docType === 'proyeccion' ? 'proyeccion' : 'presupuesto';
       const proj = (d.proyeccion && typeof d.proyeccion === 'object') ? d.proyeccion : {};
@@ -2847,6 +2917,11 @@
       renderText();
     });
 
+    els.optionBAdditionalInfoInput.addEventListener('input', (ev) => {
+      state.optionBAdditionalInfo = ev.target.value;
+      renderText();
+    });
+
     els.priceNoteInput.addEventListener('input', (ev) => {
       state.priceNote = ev.target.value;
       renderText();
@@ -2969,6 +3044,7 @@
       historySearch: document.getElementById('historySearch'),
       historyServiceFilter: document.getElementById('historyServiceFilter'),
       historyList: document.getElementById('historyList'),
+      historyScopeNote: document.getElementById('historyScopeNote'),
       historyEmpty: document.getElementById('historyEmpty'),
       usersModal: document.getElementById('usersModal'),
       usersTableBody: document.getElementById('usersTableBody'),
@@ -3016,6 +3092,8 @@
       ui.userRole.textContent = user.role === 'admin' ? 'Admin' : 'Usuario';
       ui.userRole.hidden = false;
       ui.manageUsersBtn.hidden = user.role !== 'admin';
+      // El histórico de un usuario normal se limita a sus propias propuestas.
+      ui.historyScopeNote.hidden = user.role === 'admin';
       renderAvatar(ui.headerAvatar, user);
       assistantInit();
     }
@@ -3313,7 +3391,7 @@
       document.querySelector('.app').setAttribute('data-doctype', state.docType);
       document.querySelectorAll('.doc-type-btn').forEach((b) => b.classList.toggle('is-active', b.dataset.doctype === state.docType));
       if (state.docType === 'proyeccion' && state.proyeccion.finalSections.length === 0) {
-        state.proyeccion.finalSections.push({ id: 'sec' + (++proyeccionSeq), title: '', text: '', image: '' });
+        pushFinalSection();
       }
       renderAll();
     }
@@ -3321,10 +3399,28 @@
       btn.addEventListener('click', () => setDocType(btn.dataset.doctype));
     });
 
-    document.getElementById('addFinalSectionBtn').addEventListener('click', () => {
-      state.proyeccion.finalSections.push({ id: 'sec' + (++proyeccionSeq), title: '', text: '', image: '' });
+    // Nueva página personalizable al final. pushFinalSection() solo toca el
+    // estado (para quien ya va a repintar); addFinalSection() repinta y deja el
+    // cursor en el título de la página nueva.
+    function pushFinalSection() {
+      const id = 'sec' + (++proyeccionSeq);
+      state.proyeccion.finalSections.push({ id, title: '', text: '', image: '' });
+      return id;
+    }
+
+    function addFinalSection() {
+      const id = pushFinalSection();
       renderPreview();
-    });
+      const titulo = els.pages.querySelector(`[data-proj-title="${id}"]`);
+      if (titulo) {
+        titulo.focus({ preventScroll: true });
+        const shell = titulo.closest('.page-shell');
+        if (shell) shell.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+      return id;
+    }
+
+    document.getElementById('addFinalSectionBtn').addEventListener('click', addFinalSection);
 
     // Guarda el contenido editable en el estado SIN re-render (para no perder el cursor)
     els.pages.addEventListener('input', (ev) => {
@@ -3336,6 +3432,7 @@
       } else if (t.matches && t.matches('.proj-title[data-proj-title]')) {
         const s = state.proyeccion.finalSections.find((x) => x.id === t.dataset.projTitle);
         if (s) s.title = t.textContent;
+        refreshIndiceList();
       } else return;
       markDirty();
     });
@@ -3343,6 +3440,7 @@
     // Clic en contenedor de imagen -> adjuntar foto; y eliminar sección
     let projPhotoTarget = null;
     els.pages.addEventListener('click', (ev) => {
+      if (ev.target.closest('[data-proj-add-section]')) { addFinalSection(); return; }
       const del = ev.target.closest('[data-proj-section-del]');
       if (del) {
         state.proyeccion.finalSections = state.proyeccion.finalSections.filter((s) => s.id !== del.dataset.projSectionDel);
@@ -3562,7 +3660,7 @@
       return {
         clientName: s.clientName, services: s.services, descriptions: s.descriptions,
         price: s.price, priceNote: s.priceNote, duration: s.duration,
-        additionalInfo: s.additionalInfo, docType: s.docType,
+        additionalInfo: s.additionalInfo, optionBAdditionalInfo: s.optionBAdditionalInfo, docType: s.docType,
         optionBEnabled: s.optionBEnabled, optionBServices: s.optionBServices,
         optionBPrice: s.optionBPrice, optionBDuration: s.optionBDuration,
         hasHero: !!s.heroData, hasLogo: !!s.logoData
