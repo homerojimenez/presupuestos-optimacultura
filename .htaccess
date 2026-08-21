@@ -15,7 +15,11 @@
 # Página por defecto
 DirectoryIndex index.html
 
-# Bloquear acceso web directo a datos y configuración
+# Bloquear acceso web directo a datos y configuración.
+# OJO: en SiteGround esto NO basta para la carpeta de datos. NGINX sirve los
+# estáticos sin consultar Apache, así que un .txt o una imagen bajo el document
+# root siguen siendo descargables. La protección de verdad es tener la carpeta
+# de datos fuera de public_html (ver 'sqlite_path' en config.php).
 RedirectMatch 404 ^/data/
 <FilesMatch "^config(\.sample)?\.php$">
   Require all denied

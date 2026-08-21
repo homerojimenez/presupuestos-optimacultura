@@ -72,10 +72,16 @@ da de alta al resto del equipo.
 > `data/ADMIN_PASSWORD.txt`. Cópiala y **borra ese archivo**.
 
 ## Notas
-- Las imágenes (foto/logo) se guardan en `data/uploads/` (fuera del acceso web
-  directo) y se sirven por PHP solo con sesión iniciada. La carpeta `data/` se
-  crea automáticamente; debe tener permitido escribir (en SiteGround PHP corre
-  como tu usuario, así que funciona sin tocar permisos).
+- **La carpeta de datos va FUERA de `public_html`.** SiteGround sirve los
+  ficheros estáticos por NGINX sin pasar por Apache, así que el `.htaccess` no
+  protege nada que cuelgue del document root: un `.txt` o una imagen ahí dentro
+  son descargables por cualquiera que acierte la URL. Por eso `sqlite_path` en
+  `api/config.php` apunta a `.../TU-DOMINIO/private_data/`, un nivel por encima:
+  de esa ruta cuelgan las imágenes subidas, la base de datos si usas SQLite y el
+  `ADMIN_PASSWORD.txt` del primer arranque.
+- Las imágenes (foto/logo) se sirven por PHP solo con sesión iniciada. La carpeta
+  se crea automáticamente y debe tener permitido escribir (en SiteGround PHP
+  corre como tu usuario, así que funciona sin tocar permisos).
 - La base de datos guarda solo el JSON de cada propuesta (con URLs de imagen),
   nunca los binarios; se mantiene ligera.
 - Copia de seguridad: exporta la BD MySQL desde Site Tools y respalda

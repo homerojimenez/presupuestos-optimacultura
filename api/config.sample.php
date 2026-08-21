@@ -13,7 +13,12 @@ return [
     'mysql_pass' => 'CONTRASEÑA_BD',
     'mysql_charset' => 'utf8mb4',
 
-    // --- SQLite (solo pruebas locales) ---
+    // Carpeta de datos (imágenes subidas y, si usas SQLite, la base de datos).
+    // IMPORTANTE: en SiteGround déjala FUERA de public_html. NGINX sirve los
+    // ficheros estáticos sin pasar por Apache, así que el .htaccess no protege
+    // nada que cuelgue del document root. Ruta típica en producción:
+    //   /home/customer/www/TU-DOMINIO/private_data/presupuestos.sqlite
+    // En local vale la de al lado.
     'sqlite_path' => __DIR__ . '/../data/presupuestos.sqlite',
   ],
 
