@@ -21,19 +21,35 @@ jobs:
       - name: Descargar el repositorio
         uses: actions/checkout@v5
 
+      # La clave del host va anclada en un secreto en vez de resolverse con
+      # ssh-keyscan en cada ejecución: SiteGround limita conexiones seguidas por
+      # IP y un keyscan fallido tumbaba el despliegue. Anclada también evita
+      # aceptar a ciegas la clave que responda. Si el servidor cambiara de clave
+      # el deploy fallará a propósito: entonces hay que regenerar el secreto con
+      #   ssh-keyscan -p 18765 ssh.optimacultura.es | gh secret set SSH_KNOWN_HOSTS
       - name: Preparar la clave SSH
         run: |
           mkdir -p ~/.ssh
           printf '%s\n' "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -p "$SSH_PORT" -H "${{ secrets.SSH_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null
+          printf '%s\n' "${{ secrets.SSH_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
           chmod 644 ~/.ssh/known_hosts
 
+      # Reintentos porque el servidor puede rechazar conexiones seguidas.
       - name: Comprobar la conexión
         run: |
-          ssh -i ~/.ssh/deploy_key -p "$SSH_PORT" -o BatchMode=yes \
-            "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" \
-            "test -d '${{ secrets.REMOTE_PATH }}' && echo 'Destino OK: ${{ secrets.REMOTE_PATH }}'"
+          for intento in 1 2 3; do
+            if ssh -i ~/.ssh/deploy_key -p "$SSH_PORT" -o BatchMode=yes -o ConnectTimeout=20 \
+                 "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" \
+                 "test -d '${{ secrets.REMOTE_PATH }}'"; then
+              echo "Destino OK: ${{ secrets.REMOTE_PATH }}"
+              exit 0
+            fi
+            echo "Intento $intento fallido; reintento en 15s"
+            sleep 15
+          done
+          echo "No se pudo conectar con el servidor"
+          exit 1
 
       # --delete deja el servidor idéntico al repo, salvo lo excluido:
       #   data/           base de datos e imágenes subidas (viven solo en el servidor)
